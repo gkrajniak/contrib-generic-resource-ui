@@ -1,0 +1,22 @@
+{
+  "resourceDefinition": {
+    "group": "apps",
+    "version": "v1",
+    "kind": "Deployment",
+    "plural": "deployments",
+    "singular": "deployment",
+    "scope": "Namespaced"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "http://localhost:8080/graphql"
+  },
+  "token": "your-jwt-token-here",
+  "namespaceId": "default",
+  "ui": {
+    "title": "Deployments",
+    "showCreateButton": true,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

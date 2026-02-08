@@ -1,0 +1,21 @@
+{
+  "resourceDefinition": {
+    "group": "",
+    "version": "v1",
+    "kind": "Namespace",
+    "plural": "namespaces",
+    "singular": "namespace",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "http://localhost:8080/graphql"
+  },
+  "token": "your-jwt-token-here",
+  "ui": {
+    "title": "Namespaces",
+    "showCreateButton": true,
+    "showDeleteButton": false,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

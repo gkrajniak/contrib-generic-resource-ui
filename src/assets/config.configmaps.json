@@ -1,0 +1,22 @@
+{
+  "resourceDefinition": {
+    "group": "",
+    "version": "v1",
+    "kind": "ConfigMap",
+    "plural": "configmaps",
+    "singular": "configmap",
+    "scope": "Namespaced"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "http://localhost:8080/graphql"
+  },
+  "token": "your-jwt-token-here",
+  "namespaceId": "default",
+  "ui": {
+    "title": "ConfigMaps",
+    "showCreateButton": true,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

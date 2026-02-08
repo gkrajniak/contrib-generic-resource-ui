@@ -1,0 +1,205 @@
+import {
+  createResource,
+  createResourceFailure,
+  createResourceSuccess,
+  deleteResource,
+  deleteResourceFailure,
+  deleteResourceSuccess,
+  loadResourceDetail,
+  loadResourceDetailFailure,
+  loadResourceDetailSuccess,
+  loadResources,
+  loadResourcesFailure,
+  loadResourcesSuccess,
+  resourcesUpdated,
+  updateResource,
+  updateResourceFailure,
+  updateResourceSuccess,
+} from './resources.actions';
+import { Injectable, inject } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { of } from 'rxjs';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { GenericResourceService } from 'services/resource/generic-resource.service';
+import { selectContext, selectOriginalGatewayUrl, selectResourceDefinition } from 'state/context/context.selectors';
+import { selectFieldAnalysis } from 'state/schema/schema.selectors';
+
+@Injectable()
+export class ResourcesEffects {
+  private actions$ = inject(Actions);
+  private store = inject(Store);
+  private resourceService = inject(GenericResourceService);
+
+  loadResources$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadResources),
+      withLatestFrom(
+        this.store.select(selectContext),
+        this.store.select(selectResourceDefinition),
+        this.store.select(selectFieldAnalysis),
+        this.store.select(selectOriginalGatewayUrl)
+      ),
+      switchMap(([, context, resourceDefinition, fieldAnalysis, originalGatewayUrl]) => {
+        if (!context || !resourceDefinition || !fieldAnalysis) {
+          return of(
+            loadResourcesFailure({
+              error: 'Missing context, resource definition, or schema',
+            })
+          );
+        }
+
+        // Use original gateway URL to ensure we query the correct workspace
+        const contextWithOriginalUrl = originalGatewayUrl
+          ? {
+              ...context,
+              portalContext: {
+                ...context.portalContext,
+                crdGatewayApiUrl: originalGatewayUrl,
+              },
+            }
+          : context;
+
+        return this.resourceService
+          .list(resourceDefinition, fieldAnalysis, contextWithOriginalUrl)
+          .pipe(
+            map((resources) => {
+              if (Array.isArray(resources)) {
+                return loadResourcesSuccess({ resources });
+              }
+              return resourcesUpdated({ resources });
+            }),
+            catchError((error) =>
+              of(loadResourcesFailure({ error: error.message }))
+            )
+          );
+      })
+    )
+  );
+
+  loadResourceDetail$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadResourceDetail),
+      withLatestFrom(
+        this.store.select(selectContext),
+        this.store.select(selectResourceDefinition),
+        this.store.select(selectFieldAnalysis),
+        this.store.select(selectOriginalGatewayUrl)
+      ),
+      switchMap(([{ resourceName }, context, resourceDefinition, fieldAnalysis, originalGatewayUrl]) => {
+        if (!context || !resourceDefinition || !fieldAnalysis) {
+          return of(
+            loadResourceDetailFailure({
+              error: 'Missing context, resource definition, or schema',
+            })
+          );
+        }
+
+        // Use original gateway URL for detail view to ensure we query the parent workspace
+        const contextWithOriginalUrl = originalGatewayUrl
+          ? {
+              ...context,
+              portalContext: {
+                ...context.portalContext,
+                crdGatewayApiUrl: originalGatewayUrl,
+              },
+            }
+          : context;
+
+        return this.resourceService
+          .read(resourceName, resourceDefinition, fieldAnalysis, contextWithOriginalUrl)
+          .pipe(
+            map((resource) => loadResourceDetailSuccess({ resource })),
+            catchError((error) => {
+              console.error('Error reading resource', error);
+              return of(loadResourceDetailFailure({ error: error.message }));
+            })
+          );
+      })
+    )
+  );
+
+  createResource$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(createResource),
+      withLatestFrom(
+        this.store.select(selectContext),
+        this.store.select(selectResourceDefinition)
+      ),
+      switchMap(([{ resource, dryRun }, context, resourceDefinition]) => {
+        if (!context || !resourceDefinition) {
+          return of(
+            createResourceFailure({
+              error: 'Missing context or resource definition',
+            })
+          );
+        }
+
+        return this.resourceService
+          .create(resource, resourceDefinition, context, dryRun)
+          .pipe(
+            map(() => createResourceSuccess({ resource })),
+            catchError((error) =>
+              of(createResourceFailure({ error: error.message }))
+            )
+          );
+      })
+    )
+  );
+
+  updateResource$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateResource),
+      withLatestFrom(
+        this.store.select(selectContext),
+        this.store.select(selectResourceDefinition)
+      ),
+      switchMap(([{ resource, dryRun }, context, resourceDefinition]) => {
+        if (!context || !resourceDefinition) {
+          return of(
+            updateResourceFailure({
+              error: 'Missing context or resource definition',
+            })
+          );
+        }
+
+        return this.resourceService
+          .update(resource, resourceDefinition, context, dryRun)
+          .pipe(
+            map(() => updateResourceSuccess({ resource })),
+            catchError((error) =>
+              of(updateResourceFailure({ error: error.message }))
+            )
+          );
+      })
+    )
+  );
+
+  deleteResource$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(deleteResource),
+      withLatestFrom(
+        this.store.select(selectContext),
+        this.store.select(selectResourceDefinition)
+      ),
+      switchMap(([{ resourceName }, context, resourceDefinition]) => {
+        if (!context || !resourceDefinition) {
+          return of(
+            deleteResourceFailure({
+              error: 'Missing context or resource definition',
+            })
+          );
+        }
+
+        return this.resourceService
+          .delete(resourceName, resourceDefinition, context)
+          .pipe(
+            map(() => deleteResourceSuccess({ resourceName })),
+            catchError((error) =>
+              of(deleteResourceFailure({ error: error.message }))
+            )
+          );
+      })
+    )
+  );
+}

@@ -1,0 +1,42 @@
+@import 'fundamental-styles/dist/fundamental-styles.css';
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.fd-scrollbar {
+  scrollbar-width: thin;
+}
+
+.fd-page__content {
+  padding: 1rem;
+}
+
+.fd-margin-top--sm {
+  margin-top: 0.5rem;
+}
+
+.fd-margin-bottom--sm {
+  margin-bottom: 0.5rem;
+}
+
+.fd-margin-end--sm {
+  margin-inline-end: 0.5rem;
+}
+
+.fd-flex-gap--sm {
+  gap: 0.5rem;
+}
+
+.fd-flex-gap--md {
+  gap: 1rem;
+}
+
+.yaml-panel {
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

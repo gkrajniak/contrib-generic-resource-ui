@@ -1,0 +1,31 @@
+{
+  "resourceDefinition": {
+    "group": "core.platform-mesh.io",
+    "version": "v1alpha1",
+    "kind": "Account",
+    "plural": "accounts",
+    "singular": "account",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "http://localhost:8080/graphql",
+    "kcpWorkspaceUrl": "http://localhost:6443"
+  },
+  "token": "your-jwt-token-here",
+  "accountId": "test-account",
+  "userId": "test-user",
+  "namespaceId": "default",
+  "ui": {
+    "title": "Accounts",
+    "showCreateButton": true,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true,
+    "defaultPageSize": 20,
+    "columns": {
+      "maxColumns": 6,
+      "includeMetadata": true,
+      "includeStatus": true
+    }
+  }
+}

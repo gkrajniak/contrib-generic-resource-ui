@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(gh repo view:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:headlamp.dev)",
+      "WebFetch(domain:platform-mesh.io)",
+      "WebFetch(domain:luigi-project.io)",
+      "WebFetch(domain:openmfp.org)",
+      "WebFetch(domain:docs.luigi-project.io)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(curl:*)",
+      "Bash(node debug-portal.mjs:*)",
+      "Bash(node -e:*)",
+      "WebFetch(domain:ui5.github.io)"
+    ]
+  }
+}

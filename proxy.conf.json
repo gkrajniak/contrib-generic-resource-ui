@@ -1,0 +1,7 @@
+{
+  "/api/*": {
+    "target": "https://sap.portal.localhost:8443",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
