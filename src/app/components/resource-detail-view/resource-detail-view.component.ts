@@ -31,9 +31,9 @@ import {
 } from '@fundamental-ngx/platform/dynamic-page';
 import { Store } from '@ngrx/store';
 import { combineLatest, filter, map, take } from 'rxjs';
-import { NavigationService } from 'services/navigation/navigation.service';
+import { ContextService } from 'services/context/context.service';
 import { ReadyStatusDetectorService } from 'services/view-generator/ready-status-detector.service';
-import { selectResourceDefinition, selectResourceId } from 'state/context/context.selectors';
+import { selectIsContextInitialized, selectResourceDefinition, selectResourceId } from 'state/context/context.selectors';
 import { loadResourceDetail } from 'state/resources/resources.actions';
 import {
   selectDetailLoading,
@@ -74,35 +74,30 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
             [subtitle]="subtitle()"
           >
             <fdp-dynamic-page-global-actions>
+              <!-- eslint-disable @angular-eslint/template/elements-content -->
               <fd-toolbar fdType="transparent" [clearBorder]="true">
-                <button
-                  fd-button
-                  fdType="transparent"
-                  glyph="navigation-left-arrow"
-                  label="Back"
-                  (click)="onBack()"
-                >Back</button>
                 <button
                   fd-button
                   fdType="transparent"
                   glyph="syntax"
                   label="YAML"
                   (click)="onToggleYaml()"
-                >YAML</button>
+                ></button>
                 <button
                   fd-button
                   glyph="edit"
                   label="Edit"
                   (click)="onEdit()"
-                >Edit</button>
+                ></button>
                 <button
                   fd-button
                   fdType="negative"
                   glyph="delete"
                   label="Delete"
                   (click)="onDelete()"
-                >Delete</button>
+                ></button>
               </fd-toolbar>
+              <!-- eslint-enable @angular-eslint/template/elements-content -->
             </fdp-dynamic-page-global-actions>
           </fdp-dynamic-page-title>
 
@@ -261,7 +256,7 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
 export class ResourceDetailViewComponent implements OnInit {
   private store = inject(Store);
   private route = inject(ActivatedRoute);
-  private navigationService = inject(NavigationService);
+  private contextService = inject(ContextService);
   private readyStatusDetector = inject(ReadyStatusDetectorService);
 
   protected readonly resource = toSignal(
@@ -292,22 +287,37 @@ export class ResourceDetailViewComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    console.log('[DetailView] ngOnInit called');
+    this.contextService.initialize();
+
+    // Wait for context AND schema to be ready before loading resource detail
     combineLatest([
-      this.route.paramMap.pipe(map((params) => params.get('name'))),
-      this.store.select(selectResourceId),
+      this.store.select(selectIsContextInitialized),
+      this.store.select(selectFieldAnalysis),
     ])
       .pipe(
-        map(([routeName, contextResourceId]) => routeName || contextResourceId),
-        filter((name): name is string => !!name),
+        filter(([initialized, fieldAnalysis]) => initialized && !!fieldAnalysis),
         take(1)
       )
-      .subscribe((name) => {
-        this.store.dispatch(loadResourceDetail({ resourceName: name }));
+      .subscribe(() => {
+        console.log('[DetailView] Context and schema initialized');
+        combineLatest([
+          this.route.paramMap.pipe(map((params) => params.get('name'))),
+          this.store.select(selectResourceId),
+        ])
+          .pipe(
+            map(([routeName, contextResourceId]) => {
+              console.log('[DetailView] routeName:', routeName, 'contextResourceId:', contextResourceId);
+              return routeName || contextResourceId;
+            }),
+            filter((name): name is string => !!name),
+            take(1)
+          )
+          .subscribe((name) => {
+            console.log('[DetailView] Loading resource detail for:', name);
+            this.store.dispatch(loadResourceDetail({ resourceName: name }));
+          });
       });
-  }
-
-  onBack(): void {
-    this.navigationService.navigateBack();
   }
 
   onToggleYaml(): void {

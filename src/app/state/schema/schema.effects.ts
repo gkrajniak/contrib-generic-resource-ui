@@ -7,7 +7,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { FieldAnalyzerService } from 'services/schema/field-analyzer.service';
 import { SchemaService } from 'services/schema/schema.service';
-import { selectContext, selectOriginalGatewayUrl } from 'state/context/context.selectors';
+import { selectContext } from 'state/context/context.selectors';
 import { IntrospectionType } from 'models/index';
 
 @Injectable()
@@ -20,11 +20,8 @@ export class SchemaEffects {
   loadSchema$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadSchema),
-      withLatestFrom(
-        this.store.select(selectContext),
-        this.store.select(selectOriginalGatewayUrl)
-      ),
-      switchMap(([{ resourceDefinition }, context, originalGatewayUrl]) => {
+      withLatestFrom(this.store.select(selectContext)),
+      switchMap(([{ resourceDefinition }, context]) => {
         console.log('[SchemaEffects] loadSchema triggered, resourceDefinition:', resourceDefinition);
         console.log('[SchemaEffects] context:', context);
 
@@ -33,22 +30,15 @@ export class SchemaEffects {
           return of(loadSchemaFailure({ error: 'No context available' }));
         }
 
-        // Use original gateway URL to ensure we always query the correct workspace
-        const contextWithOriginalUrl = originalGatewayUrl
-          ? {
-              ...context,
-              portalContext: {
-                ...context.portalContext,
-                crdGatewayApiUrl: originalGatewayUrl,
-              },
-            }
-          : context;
+        // Use readFromParentKcpPath from resource definition config
+        const readFromParentKcpPath = resourceDefinition.readFromParentKcpPath ?? false;
 
         console.log('[SchemaEffects] Introspecting type:', resourceDefinition.kind);
-        console.log('[SchemaEffects] Using GraphQL URL:', contextWithOriginalUrl.portalContext?.crdGatewayApiUrl);
+        console.log('[SchemaEffects] Using GraphQL URL:', context.portalContext?.crdGatewayApiUrl);
+        console.log('[SchemaEffects] readFromParentKcpPath:', readFromParentKcpPath);
 
         return this.schemaService
-          .introspectType(resourceDefinition.kind, contextWithOriginalUrl)
+          .introspectType(resourceDefinition.kind, context, readFromParentKcpPath)
           .pipe(
             switchMap((resourceType) => {
               console.log('[SchemaEffects] Introspection result for', resourceDefinition.kind, ':', resourceType);
@@ -67,10 +57,10 @@ export class SchemaEffects {
 
               // Introspect input type and all nested types
               const queries: Record<string, Observable<IntrospectionType | null>> = {
-                inputType: this.schemaService.introspectType(`${resourceDefinition.kind}Input`, contextWithOriginalUrl),
+                inputType: this.schemaService.introspectType(`${resourceDefinition.kind}Input`, context, readFromParentKcpPath),
               };
               nestedTypeNames.forEach((name) => {
-                queries[name] = this.schemaService.introspectType(name, contextWithOriginalUrl);
+                queries[name] = this.schemaService.introspectType(name, context, readFromParentKcpPath);
               });
 
               return forkJoin(queries).pipe(

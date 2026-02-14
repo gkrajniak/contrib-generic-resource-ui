@@ -7,6 +7,7 @@ export const INTROSPECT_TYPE_QUERY = gql`
       kind
       fields {
         name
+        description
         type {
           name
           kind
@@ -26,6 +27,7 @@ export const INTROSPECT_TYPE_QUERY = gql`
       }
       inputFields {
         name
+        description
         type {
           name
           kind

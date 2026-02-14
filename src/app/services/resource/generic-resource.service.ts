@@ -140,7 +140,8 @@ export class GenericResourceService {
     resourceName: string,
     resourceDefinition: ResourceDefinition,
     fieldAnalysis: FieldAnalysis,
-    context: ResourceNodeContext
+    context: ResourceNodeContext,
+    readFromParentKcpPath = false
   ): Observable<Resource> {
     const fieldsSelection = this.buildDetailFieldsSelection(fieldAnalysis);
     const group = this.normalizeGroupName(resourceDefinition.group);
@@ -171,7 +172,7 @@ export class GenericResourceService {
     `;
 
     return this.apolloFactory
-      .apollo(context)
+      .apollo(context, readFromParentKcpPath)
       .query({
         query: gql`${readQuery}`,
         variables,
@@ -361,8 +362,15 @@ export class GenericResourceService {
       selection += `\nspec { ${specFields.join(' ')} }`;
     }
 
-    if (statusFields.length > 0) {
-      selection += `\nstatus { ${statusFields.join(' ')} }`;
+    // Include status fields and conditions for ready status detection
+    if (statusFields.length > 0 || fieldAnalysis.conditionsField) {
+      let statusSelection = statusFields.join(' ');
+      if (fieldAnalysis.conditionsField) {
+        statusSelection += ' conditions { type status reason message lastTransitionTime }';
+      }
+      if (statusSelection.trim()) {
+        selection += `\nstatus { ${statusSelection} }`;
+      }
     }
 
     return selection;

@@ -14,6 +14,7 @@ import {
 } from '@fundamental-ngx/core/layout-panel';
 import { TableModule } from '@fundamental-ngx/core/table';
 import { ObjectStatusModule } from '@fundamental-ngx/core/object-status';
+import { IconComponent } from '@fundamental-ngx/core/icon';
 import { Condition, DetailFieldType, FieldAnalysis, Resource } from 'models/index';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
 import { humanizeFieldName } from 'utils/humanize';
@@ -23,6 +24,7 @@ interface StatusField {
   label: string;
   value: any;
   type: DetailFieldType;
+  description?: string;
 }
 
 @Component({
@@ -36,6 +38,7 @@ interface StatusField {
     LayoutPanelTitleDirective,
     TableModule,
     ObjectStatusModule,
+    IconComponent,
     ValueCellComponent,
   ],
   template: `
@@ -52,7 +55,16 @@ interface StatusField {
             <div class="status-grid">
               @for (field of statusFields(); track field.key) {
                 <div class="status-item">
-                  <div class="status-label">{{ field.label }}</div>
+                  <div class="status-label">
+                    {{ field.label }}
+                    @if (field.description) {
+                      <fd-icon
+                        glyph="hint"
+                        class="info-icon"
+                        [title]="field.description"
+                      ></fd-icon>
+                    }
+                  </div>
                   <div class="status-value">
                     <app-value-cell
                       [value]="field.value"
@@ -121,6 +133,17 @@ interface StatusField {
         color: var(--sapContent_LabelColor);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .info-icon {
+        font-size: 0.875rem;
+        color: var(--sapContent_NonInteractiveIconColor);
+        cursor: help;
+      }
+      .info-icon:hover {
+        color: var(--sapContent_IconColor);
       }
       .status-value {
         font-size: 0.875rem;
@@ -156,18 +179,26 @@ export class StatusSectionComponent {
 
   protected readonly statusFields = computed((): StatusField[] => {
     const status = this.resource().status;
+    const analysis = this.fieldAnalysis();
+
     if (!status) {
       return [];
     }
 
+    const statusSchemaFields = analysis?.statusFields ?? [];
+
     return Object.entries(status)
       .filter(([key]) => key !== 'conditions' && this.isScalarValue(status[key]))
-      .map(([key, value]) => ({
-        key,
-        label: humanizeFieldName(key),
-        value,
-        type: this.getFieldType(value),
-      }));
+      .map(([key, value]) => {
+        const schemaField = statusSchemaFields.find((f) => f.name === key);
+        return {
+          key,
+          label: humanizeFieldName(key),
+          value,
+          type: this.getFieldType(value),
+          description: schemaField?.description,
+        };
+      });
   });
 
   protected readonly conditions = computed((): Condition[] => {

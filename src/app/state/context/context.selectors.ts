@@ -48,3 +48,20 @@ export const selectOriginalGatewayUrl = createSelector(
   selectContextState,
   (state) => state.originalGatewayUrl
 );
+
+export const selectResourceContext = createSelector(
+  selectContext,
+  (context) => {
+    if (!context?.portalContext?.crdGatewayApiUrl || !context?.token || !context?.resourceDefinition) {
+      return null;
+    }
+    return {
+      token: context.token,
+      resourceDefinition: context.resourceDefinition,
+      portalContext: context.portalContext,
+      namespaceId: context.namespaceId,
+      accountId: context.accountId,
+      resourceId: context.resourceId,
+    };
+  }
+);

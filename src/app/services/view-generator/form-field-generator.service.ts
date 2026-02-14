@@ -74,6 +74,7 @@ export class FormFieldGeneratorService {
       path: `spec.${schemaField.name}`,
       type: this.getFormFieldType(schemaField),
       required,
+      defaultValue: this.getDefaultValue(schemaField),
       validators: [],
     };
 
@@ -85,6 +86,22 @@ export class FormFieldGeneratorService {
     }
 
     return baseConfig;
+  }
+
+  private getDefaultValue(schemaField: SchemaField): unknown {
+    if (schemaField.isList) {
+      return [];
+    }
+
+    switch (schemaField.typeName) {
+      case 'Boolean':
+        return false;
+      case 'Int':
+      case 'Float':
+        return null;
+      default:
+        return '';
+    }
   }
 
   private getFormFieldType(schemaField: SchemaField): FormFieldType {

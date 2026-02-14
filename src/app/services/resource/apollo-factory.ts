@@ -59,7 +59,27 @@ export class ApolloFactory {
     nodeContext: ResourceNodeContext,
     readFromParentKcpPath: boolean
   ): string {
-    return nodeContext.portalContext.crdGatewayApiUrl;
+    const gatewayUrl = nodeContext.portalContext.crdGatewayApiUrl;
+
+    if (!readFromParentKcpPath) {
+      return gatewayUrl;
+    }
+
+    // Extract the KCP path from the URL (e.g., root:orgs:sap:workspaces from .../root:orgs:sap:workspaces/graphql)
+    const kcpPathMatch = gatewayUrl.match(/\/([^/]+)\/graphql$/);
+    if (!kcpPathMatch) {
+      return gatewayUrl;
+    }
+
+    const currentKcpPath = kcpPathMatch[1];
+    // Remove the last segment to get the parent path (e.g., root:orgs:sap:workspaces -> root:orgs:sap)
+    const lastColonIndex = currentKcpPath.lastIndexOf(':');
+    if (lastColonIndex === -1) {
+      return gatewayUrl;
+    }
+
+    const parentKcpPath = currentKcpPath.slice(0, lastColonIndex);
+    return gatewayUrl.replace(currentKcpPath, parentKcpPath);
   }
 
   private createApolloOptions(

@@ -29,10 +29,9 @@
           "children": [
             {
               "pathSegment": ":core_platform-mesh_io_accountId",
-              "hideSideNav": true,
-              "hideFromNav": true,
-              "keepSelectedForChildren": true,
-              "url": "https://localhost:4200/ui/generic-resource/#/:core_platform-mesh_io_accountId",
+              "hideSideNav": false,
+              "hideFromNav": false,
+              "keepSelectedForChildren": false,
               "defineEntity": {
                 "id": "core_platform-mesh_io_account",
                 "contextKey": "core_platform-mesh_io_accountId",
@@ -52,6 +51,48 @@
               }
             }
           ]
+        },
+        {
+          "pathSegment": "create",
+          "entityType": "global",
+          "hideFromNav": true,
+          "loadingIndicator": {
+            "enabled": false
+          },
+          "url": "https://localhost:4200/ui/generic-resource/#/create",
+          "context": {
+            "resourceDefinition": {
+              "group": "core.platform-mesh.io",
+              "version": "v1alpha1",
+              "kind": "Account",
+              "plural": "accounts",
+              "singular": "account",
+              "scope": "Cluster"
+            }
+          }
+        },
+        {
+          "entityType": "core_platform-mesh_io_account",
+          "pathSegment": "dashboard",
+          "label": "Dashboard",
+          "icon": "bbyd-dashboard",
+          "order": 100,
+          "loadingIndicator": {
+            "enabled": false
+          },
+          "url": "https://localhost:4200/ui/generic-resource/#/:core_platform-mesh_io_accountId",
+          "context": {
+            "resourceDefinition": {
+              "group": "core.platform-mesh.io",
+              "version": "v1alpha1",
+              "kind": "Account",
+              "plural": "accounts",
+              "singular": "account",
+              "scope": "Cluster",
+              "readFromParentKcpPath": true
+            },
+            "resourceId": ":core_platform-mesh_io_accountId"
+          }
         }
       ]
     }

@@ -5,8 +5,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ButtonBarComponent } from '@fundamental-ngx/core/bar';
-import { DialogModule } from '@fundamental-ngx/core/dialog';
+import { ButtonComponent } from '@fundamental-ngx/core/button';
+import { BarModule } from '@fundamental-ngx/core/bar';
 import { FormItemComponent, FormLabelComponent, FormControlComponent } from '@fundamental-ngx/core/form';
 import { MessageStripComponent } from '@fundamental-ngx/core/message-strip';
 import { BusyIndicatorComponent } from '@fundamental-ngx/core/busy-indicator';
@@ -23,8 +23,8 @@ import { closeDeleteConfirmation } from 'state/ui/ui.actions';
   selector: 'app-delete-confirmation-modal',
   imports: [
     FormsModule,
-    ButtonBarComponent,
-    DialogModule,
+    ButtonComponent,
+    BarModule,
     FormItemComponent,
     FormLabelComponent,
     FormControlComponent,
@@ -33,12 +33,13 @@ import { closeDeleteConfirmation } from 'state/ui/ui.actions';
   ],
   template: `
     @if (isOpen()) {
-      <fd-dialog>
-        <fd-dialog-header>
-          <h3 fd-dialog-title>Delete Resource</h3>
-        </fd-dialog-header>
+      <div class="dialog-backdrop" (click)="onCancel()"></div>
+      <div class="dialog-container" role="dialog" aria-modal="true">
+        <div class="dialog-header">
+          <h3 class="dialog-title">Delete Resource</h3>
+        </div>
 
-        <fd-dialog-body>
+        <div class="dialog-body">
           <fd-busy-indicator [loading]="deleting()" size="m" [block]="true">
             <fd-message-strip type="warning" [dismissible]="false">
               This action cannot be undone. The resource will be permanently
@@ -60,24 +61,65 @@ import { closeDeleteConfirmation } from 'state/ui/ui.actions';
               />
             </div>
           </fd-busy-indicator>
-        </fd-dialog-body>
+        </div>
 
-        <fd-dialog-footer>
-          <fd-button-bar
-            fdType="transparent"
-            (click)="onCancel()"
-          >Cancel</fd-button-bar>
-          <fd-button-bar
-            fdType="negative"
-            [disabled]="!canDelete()"
-            (click)="onDelete()"
-          >Delete</fd-button-bar>
-        </fd-dialog-footer>
-      </fd-dialog>
+        <div fd-bar barDesign="footer" class="dialog-footer">
+          <div fd-bar-element>
+            <button
+              fd-button
+              fdType="transparent"
+              (click)="onCancel()"
+            >Cancel</button>
+          </div>
+          <div fd-bar-element>
+            <button
+              fd-button
+              fdType="negative"
+              [disabled]="!canDelete()"
+              (click)="onDelete()"
+            >Delete</button>
+          </div>
+        </div>
+      </div>
     }
   `,
   styles: [
     `
+      .dialog-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+      .dialog-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--sapBackgroundColor, white);
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1001;
+        min-width: 400px;
+        max-width: 90vw;
+      }
+      .dialog-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--sapGroup_TitleBorderColor);
+      }
+      .dialog-title {
+        margin: 0;
+        font-size: 1.125rem;
+      }
+      .dialog-body {
+        padding: 1rem;
+      }
+      .dialog-footer {
+        border-top: 1px solid var(--sapGroup_TitleBorderColor);
+      }
       .confirmation-text {
         margin: 1rem 0;
       }

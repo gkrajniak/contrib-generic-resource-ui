@@ -45,7 +45,7 @@ export class FieldAnalyzerService {
 
     return inputType.inputFields
       .filter((field) => this.isNonNullType(field.type))
-      .map((field) => this.convertToSchemaField(field.name, field.type));
+      .map((field) => this.convertToSchemaField(field.name, field.type, field.description));
   }
 
   private findFieldType(
@@ -65,7 +65,7 @@ export class FieldAnalyzerService {
 
     return metadataType.fields
       .filter((f) => CORE_METADATA_FIELDS.includes(f.name as any))
-      .map((f) => this.convertToSchemaField(f.name, f.type));
+      .map((f) => this.convertToSchemaField(f.name, f.type, f.description));
   }
 
   private categorizeSpecFields(specType: IntrospectionType | undefined): {
@@ -82,7 +82,7 @@ export class FieldAnalyzerService {
     }
 
     const allSpecFields = specType.fields.map((f) =>
-      this.convertToSchemaField(f.name, f.type)
+      this.convertToSchemaField(f.name, f.type, f.description)
     );
 
     const scalarSpecFields = allSpecFields.filter((f) => f.isScalar);
@@ -105,7 +105,7 @@ export class FieldAnalyzerService {
     }
 
     const allStatusFields = statusType.fields.map((f) =>
-      this.convertToSchemaField(f.name, f.type)
+      this.convertToSchemaField(f.name, f.type, f.description)
     );
 
     const conditionsField = allStatusFields.find(
@@ -121,7 +121,8 @@ export class FieldAnalyzerService {
 
   private convertToSchemaField(
     name: string,
-    type: IntrospectionType
+    type: IntrospectionType,
+    description?: string
   ): SchemaField {
     const unwrapped = this.unwrapType(type);
     const isNonNull = this.isNonNullType(type);
@@ -137,6 +138,7 @@ export class FieldAnalyzerService {
       isNonNull,
       isList,
       isScalar,
+      description,
       underlyingType: unwrapped,
     };
   }

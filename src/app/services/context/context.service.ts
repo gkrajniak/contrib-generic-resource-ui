@@ -107,15 +107,49 @@ export class ContextService {
   }
 
   private toResourceNodeContext(context: NodeContext): ResourceNodeContext {
+    // Fix stale portalContext.crdGatewayApiUrl by deriving it from kcpPath
+    const portalContext = this.fixGatewayUrl(context);
+
     return {
       token: context.token,
       resourceDefinition: context.resourceDefinition!,
-      portalContext: context.portalContext,
+      portalContext,
       namespaceId: context.namespaceId,
       accountId: context.accountId,
       resourceId: context['resourceId'] || context['core_platform-mesh_io_accountId'],
       entityType: context.entityType,
       entityName: context.entityName,
+    };
+  }
+
+  private fixGatewayUrl(context: NodeContext): NodeContext['portalContext'] {
+    const portalContext = context.portalContext;
+    const kcpPath = context['kcpPath'] as string | undefined;
+
+    if (!portalContext?.crdGatewayApiUrl || !kcpPath) {
+      return portalContext;
+    }
+
+    // Extract the base URL pattern and rebuild with current kcpPath
+    // URL pattern: https://host/api/kubernetes-graphql-gateway/{kcpPath}/graphql
+    const urlMatch = portalContext.crdGatewayApiUrl.match(
+      /^(https?:\/\/[^/]+\/api\/kubernetes-graphql-gateway\/)([^/]+)(\/graphql)$/
+    );
+
+    if (!urlMatch) {
+      return portalContext;
+    }
+
+    const [, baseUrl, , suffix] = urlMatch;
+    const correctedUrl = `${baseUrl}${kcpPath}${suffix}`;
+
+    if (correctedUrl !== portalContext.crdGatewayApiUrl) {
+      console.log('[ContextService] Fixed stale gateway URL:', portalContext.crdGatewayApiUrl, '->', correctedUrl);
+    }
+
+    return {
+      ...portalContext,
+      crdGatewayApiUrl: correctedUrl,
     };
   }
 }

@@ -41,5 +41,6 @@ export interface SchemaField {
   isNonNull: boolean;
   isList: boolean;
   isScalar: boolean;
+  description?: string;
   underlyingType?: IntrospectionType;
 }

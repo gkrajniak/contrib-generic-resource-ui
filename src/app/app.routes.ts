@@ -16,6 +16,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'create',
+    loadComponent: () =>
+      import('./pages/create-resource-page/create-resource-page.component').then(
+        (m) => m.CreateResourcePageComponent
+      ),
+  },
+  {
     path: ':name',
     loadComponent: () =>
       import('./components/resource-detail-view/resource-detail-view.component').then(

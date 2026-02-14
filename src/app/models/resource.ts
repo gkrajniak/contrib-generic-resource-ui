@@ -36,6 +36,10 @@ export interface ResourceDefinition {
   plural: string;
   singular: string;
   scope: 'Cluster' | 'Namespaced';
+  /** When true, queries the parent KCP workspace instead of the current workspace.
+   * Use this for entity resources (like Account) that live in the parent workspace
+   * but are accessed from within their child workspace context. */
+  readFromParentKcpPath?: boolean;
 }
 
 export interface ResourceListResult {

@@ -19,14 +19,14 @@ import {
 } from '@fundamental-ngx/platform/dynamic-page';
 import { Store } from '@ngrx/store';
 import { ContextService } from 'services/context/context.service';
+import { LuigiClientService } from 'services/luigi/luigi-client.service';
 import { selectResourceDefinition } from 'state/context/context.selectors';
-import { loadResources } from 'state/resources/resources.actions';
 import {
   selectResources,
   selectResourcesLoading,
 } from 'state/resources/resources.selectors';
+import { loadResources } from 'state/resources/resources.actions';
 import { selectFieldAnalysis, selectSchemaLoading } from 'state/schema/schema.selectors';
-import { openCreateModal } from 'state/ui/ui.actions';
 import { selectSearchTerm } from 'state/ui/ui.selectors';
 
 @Component({
@@ -47,15 +47,8 @@ import { selectSearchTerm } from 'state/ui/ui.selectors';
       <fdp-dynamic-page ariaLabel="Resources" size="large" [autoResponsive]="false">
         <fdp-dynamic-page-title [title]="title()">
           <fdp-dynamic-page-global-actions>
+            <!-- eslint-disable @angular-eslint/template/elements-content -->
             <fd-toolbar fdType="transparent" [clearBorder]="true">
-              <button
-                fd-button
-                fdType="transparent"
-                glyphPosition="before"
-                glyph="refresh"
-                label="Refresh"
-                (click)="onRefresh()"
-              >Refresh</button>
               <button
                 fd-button
                 fdType="emphasized"
@@ -63,8 +56,10 @@ import { selectSearchTerm } from 'state/ui/ui.selectors';
                 glyph="add"
                 label="Create"
                 (click)="onCreate()"
-              >Create</button>
+                test-id="generic-list-view-create-button"
+              ></button>
             </fd-toolbar>
+            <!-- eslint-enable @angular-eslint/template/elements-content -->
           </fdp-dynamic-page-global-actions>
         </fdp-dynamic-page-title>
 
@@ -92,6 +87,7 @@ import { selectSearchTerm } from 'state/ui/ui.selectors';
 export class ResourceListViewComponent implements OnInit {
   private store = inject(Store);
   private contextService = inject(ContextService);
+  private luigiClient = inject(LuigiClientService);
 
   protected readonly resourceDefinition = toSignal(
     this.store.select(selectResourceDefinition)
@@ -141,11 +137,28 @@ export class ResourceListViewComponent implements OnInit {
     this.contextService.initialize();
   }
 
-  onRefresh(): void {
-    this.store.dispatch(loadResources());
-  }
-
   onCreate(): void {
-    this.store.dispatch(openCreateModal());
+    const resourceDef = this.resourceDefinition();
+    const title = resourceDef
+      ? `Create ${resourceDef.kind}`
+      : 'Create Resource';
+
+    // Navigate to the create node using absolute path
+    this.luigiClient
+      .linkManager()
+      .openAsModal('/create', {
+        title,
+        size: 'm',
+      })
+      .then((result: unknown) => {
+        const modalResult = result as { created?: string; cancelled?: boolean } | undefined;
+        if (modalResult?.created) {
+          // Reload resources after successful creation
+          this.store.dispatch(loadResources());
+        }
+      })
+      .catch(() => {
+        // Modal was closed without action
+      });
   }
 }

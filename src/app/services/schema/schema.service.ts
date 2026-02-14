@@ -12,10 +12,11 @@ export class SchemaService {
 
   introspectType(
     typeName: string,
-    context: ResourceNodeContext
+    context: ResourceNodeContext,
+    readFromParentKcpPath = false
   ): Observable<IntrospectionType | null> {
     return this.apolloFactory
-      .apollo(context)
+      .apollo(context, readFromParentKcpPath)
       .query<IntrospectionResult>({
         query: INTROSPECT_TYPE_QUERY,
         variables: { typeName },

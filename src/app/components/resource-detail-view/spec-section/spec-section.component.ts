@@ -11,6 +11,7 @@ import {
   LayoutPanelHeadComponent,
   LayoutPanelTitleDirective,
 } from '@fundamental-ngx/core/layout-panel';
+import { IconComponent } from '@fundamental-ngx/core/icon';
 import { DetailFieldType, FieldAnalysis, Resource } from 'models/index';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
 import { humanizeFieldName } from 'utils/humanize';
@@ -21,6 +22,7 @@ interface ScalarField {
   label: string;
   value: any;
   type: DetailFieldType;
+  description?: string;
 }
 
 interface ComplexField {
@@ -28,6 +30,7 @@ interface ComplexField {
   label: string;
   value: any;
   yamlValue: string;
+  description?: string;
 }
 
 @Component({
@@ -38,6 +41,7 @@ interface ComplexField {
     LayoutPanelHeaderComponent,
     LayoutPanelHeadComponent,
     LayoutPanelTitleDirective,
+    IconComponent,
     ValueCellComponent,
   ],
   template: `
@@ -53,7 +57,16 @@ interface ComplexField {
           <div class="spec-grid">
             @for (field of scalarFields(); track field.key) {
               <div class="spec-item">
-                <div class="spec-label">{{ field.label }}</div>
+                <div class="spec-label">
+                  {{ field.label }}
+                  @if (field.description) {
+                    <fd-icon
+                      glyph="hint"
+                      class="info-icon"
+                      [title]="field.description"
+                    ></fd-icon>
+                  }
+                </div>
                 <div class="spec-value">
                   <app-value-cell
                     [value]="field.value"
@@ -66,7 +79,16 @@ interface ComplexField {
 
           @for (field of complexFields(); track field.key) {
             <div class="complex-field">
-              <div class="spec-label">{{ field.label }}</div>
+              <div class="spec-label">
+                {{ field.label }}
+                @if (field.description) {
+                  <fd-icon
+                    glyph="hint"
+                    class="info-icon"
+                    [title]="field.description"
+                  ></fd-icon>
+                }
+              </div>
               <pre class="yaml-content">{{ field.yamlValue }}</pre>
             </div>
           }
@@ -93,6 +115,17 @@ interface ComplexField {
         color: var(--sapContent_LabelColor);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .info-icon {
+        font-size: 0.875rem;
+        color: var(--sapContent_NonInteractiveIconColor);
+        cursor: help;
+      }
+      .info-icon:hover {
+        color: var(--sapContent_IconColor);
       }
       .spec-value {
         font-size: 0.875rem;
@@ -134,16 +167,21 @@ export class SpecSectionComponent {
       return [];
     }
 
-    const scalarFieldNames = analysis?.scalarSpecFields.map((f) => f.name) ?? [];
+    const scalarSchemaFields = analysis?.scalarSpecFields ?? [];
+    const scalarFieldNames = scalarSchemaFields.map((f) => f.name);
 
     return Object.entries(spec)
       .filter(([key]) => scalarFieldNames.includes(key) || this.isScalarValue(spec[key]))
-      .map(([key, value]) => ({
-        key,
-        label: humanizeFieldName(key),
-        value,
-        type: this.getFieldType(value),
-      }));
+      .map(([key, value]) => {
+        const schemaField = scalarSchemaFields.find((f) => f.name === key);
+        return {
+          key,
+          label: humanizeFieldName(key),
+          value,
+          type: this.getFieldType(value),
+          description: schemaField?.description,
+        };
+      });
   });
 
   protected readonly complexFields = computed((): ComplexField[] => {
@@ -154,20 +192,24 @@ export class SpecSectionComponent {
       return [];
     }
 
-    const complexFieldNames =
-      analysis?.complexSpecFields.map((f) => f.name) ?? [];
+    const complexSchemaFields = analysis?.complexSpecFields ?? [];
+    const complexFieldNames = complexSchemaFields.map((f) => f.name);
 
     return Object.entries(spec)
       .filter(
         ([key, value]) =>
           complexFieldNames.includes(key) || !this.isScalarValue(value)
       )
-      .map(([key, value]) => ({
-        key,
-        label: humanizeFieldName(key),
-        value,
-        yamlValue: YAML.stringify(value, { indent: 2 }),
-      }));
+      .map(([key, value]) => {
+        const schemaField = complexSchemaFields.find((f) => f.name === key);
+        return {
+          key,
+          label: humanizeFieldName(key),
+          value,
+          yamlValue: YAML.stringify(value, { indent: 2 }),
+          description: schemaField?.description,
+        };
+      });
   });
 
   private isScalarValue(value: any): boolean {

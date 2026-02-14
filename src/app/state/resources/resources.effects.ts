@@ -22,7 +22,7 @@ import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { GenericResourceService } from 'services/resource/generic-resource.service';
-import { selectContext, selectOriginalGatewayUrl, selectResourceDefinition } from 'state/context/context.selectors';
+import { selectContext, selectResourceDefinition } from 'state/context/context.selectors';
 import { selectFieldAnalysis } from 'state/schema/schema.selectors';
 
 @Injectable()
@@ -37,10 +37,9 @@ export class ResourcesEffects {
       withLatestFrom(
         this.store.select(selectContext),
         this.store.select(selectResourceDefinition),
-        this.store.select(selectFieldAnalysis),
-        this.store.select(selectOriginalGatewayUrl)
+        this.store.select(selectFieldAnalysis)
       ),
-      switchMap(([, context, resourceDefinition, fieldAnalysis, originalGatewayUrl]) => {
+      switchMap(([, context, resourceDefinition, fieldAnalysis]) => {
         if (!context || !resourceDefinition || !fieldAnalysis) {
           return of(
             loadResourcesFailure({
@@ -49,19 +48,8 @@ export class ResourcesEffects {
           );
         }
 
-        // Use original gateway URL to ensure we query the correct workspace
-        const contextWithOriginalUrl = originalGatewayUrl
-          ? {
-              ...context,
-              portalContext: {
-                ...context.portalContext,
-                crdGatewayApiUrl: originalGatewayUrl,
-              },
-            }
-          : context;
-
         return this.resourceService
-          .list(resourceDefinition, fieldAnalysis, contextWithOriginalUrl)
+          .list(resourceDefinition, fieldAnalysis, context)
           .pipe(
             map((resources) => {
               if (Array.isArray(resources)) {
@@ -83,10 +71,9 @@ export class ResourcesEffects {
       withLatestFrom(
         this.store.select(selectContext),
         this.store.select(selectResourceDefinition),
-        this.store.select(selectFieldAnalysis),
-        this.store.select(selectOriginalGatewayUrl)
+        this.store.select(selectFieldAnalysis)
       ),
-      switchMap(([{ resourceName }, context, resourceDefinition, fieldAnalysis, originalGatewayUrl]) => {
+      switchMap(([{ resourceName }, context, resourceDefinition, fieldAnalysis]) => {
         if (!context || !resourceDefinition || !fieldAnalysis) {
           return of(
             loadResourceDetailFailure({
@@ -95,19 +82,11 @@ export class ResourcesEffects {
           );
         }
 
-        // Use original gateway URL for detail view to ensure we query the parent workspace
-        const contextWithOriginalUrl = originalGatewayUrl
-          ? {
-              ...context,
-              portalContext: {
-                ...context.portalContext,
-                crdGatewayApiUrl: originalGatewayUrl,
-              },
-            }
-          : context;
+        // Use readFromParentKcpPath from resource definition config
+        const readFromParentKcpPath = resourceDefinition.readFromParentKcpPath ?? false;
 
         return this.resourceService
-          .read(resourceName, resourceDefinition, fieldAnalysis, contextWithOriginalUrl)
+          .read(resourceName, resourceDefinition, fieldAnalysis, context, readFromParentKcpPath)
           .pipe(
             map((resource) => loadResourceDetailSuccess({ resource })),
             catchError((error) => {
