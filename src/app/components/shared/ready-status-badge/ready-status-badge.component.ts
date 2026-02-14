@@ -32,7 +32,7 @@ export class ReadyStatusBadgeComponent {
   protected readonly displayLabel = computed(() => {
     const status = this.status();
     if (!status) {
-      return 'Unknown';
+      return 'N/A';
     }
 
     if (this.showMessage() && status.message) {
@@ -66,7 +66,7 @@ export class ReadyStatusBadgeComponent {
       case 'in-progress':
         return 'In Progress';
       default:
-        return 'Unknown';
+        return 'N/A';
     }
   }
 }

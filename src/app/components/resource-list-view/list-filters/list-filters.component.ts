@@ -44,6 +44,7 @@ import {
       </div>
 
       @if (hasActiveFilters()) {
+        <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
         <button
           fd-button
           fdType="transparent"

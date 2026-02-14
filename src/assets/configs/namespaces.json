@@ -1,0 +1,20 @@
+{
+  "resourceDefinition": {
+    "group": "",
+    "version": "v1",
+    "kind": "Namespace",
+    "plural": "Namespaces",
+    "singular": "Namespace",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "https://sap.portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:sap:workspaces:tobias-test-home/graphql"
+  },
+  "ui": {
+    "title": "Namespaces",
+    "showCreateButton": true,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

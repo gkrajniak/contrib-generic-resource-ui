@@ -1,0 +1,703 @@
+{
+  "introspection": {
+    "ConfigMap": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "apiVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "binaryData",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "StringMapInput",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "data",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "StringMapInput",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "immutable",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "kind",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "metadata",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "annotations",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "creationTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionGracePeriodSeconds",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "finalizers",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generateName",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generation",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "labels",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "managedFields",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "namespace",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "ownerReferences",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "resourceVersion",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "selfLink",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "uid",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "ConfigMap"
+        }
+      }
+    },
+    "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "apiVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "fieldsType",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "fieldsV1",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "JSONString",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "manager",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "operation",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "subresource",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "time",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields"
+        }
+      }
+    },
+    "io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "annotations",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "StringMapInput",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "creationTimestamp",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "deletionGracePeriodSeconds",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "deletionTimestamp",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "finalizers",
+              "type": {
+                "fields": null,
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "fields": null,
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "description": "",
+              "name": "generateName",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "generation",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "labels",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "StringMapInput",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "managedFields",
+              "type": {
+                "fields": null,
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "fields": [
+                    {
+                      "name": "apiVersion",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "fieldsType",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "fieldsV1",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "JSONString",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "manager",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "operation",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "subresource",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "time",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  ],
+                  "kind": "OBJECT",
+                  "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "description": "",
+              "name": "name",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "namespace",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "ownerReferences",
+              "type": {
+                "fields": null,
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "fields": [
+                    {
+                      "name": "apiVersion",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "blockOwnerDeletion",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "Boolean",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "controller",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "Boolean",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "kind",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "name",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    },
+                    {
+                      "name": "uid",
+                      "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  ],
+                  "kind": "OBJECT",
+                  "name": "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "description": "",
+              "name": "resourceVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "selfLink",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "uid",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata"
+        }
+      }
+    },
+    "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "apiVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "blockOwnerDeletion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "controller",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "kind",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "name",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "uid",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences"
+        }
+      }
+    }
+  },
+  "listResponse": {
+    "data": {
+      "v1": {
+        "ConfigMaps": {
+          "items": [
+            {
+              "metadata": {
+                "creationTimestamp": "2026-02-13T15:32:27Z",
+                "labels": null,
+                "name": "kube-root-ca.crt",
+                "namespace": "default",
+                "uid": "6739002b-c854-4399-8594-09ff5b298458"
+              }
+            }
+          ],
+          "resourceVersion": "21797"
+        }
+      }
+    }
+  },
+  "detailResponse": {
+    "data": {
+      "v1": {
+        "ConfigMap": {
+          "metadata": {
+            "annotations": {
+              "kcp.io/cluster": "28xbqo0bwebrv2o3",
+              "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+            },
+            "creationTimestamp": "2026-02-13T15:32:27Z",
+            "deletionTimestamp": null,
+            "generation": null,
+            "labels": null,
+            "name": "kube-root-ca.crt",
+            "namespace": "default",
+            "resourceVersion": "2076",
+            "uid": "6739002b-c854-4399-8594-09ff5b298458"
+          }
+        }
+      }
+    }
+  },
+  "yamlResponse": {
+    "data": {
+      "v1": {
+        "ConfigMapYaml": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  annotations:\n    kcp.io/cluster: 28xbqo0bwebrv2o3\n    kubernetes.io/description: Contains a CA bundle that can be used to verify the\n      kube-apiserver when using internal endpoints such as the internal service IP\n      or kubernetes.default.svc. No other usage is guaranteed across distributions\n      of Kubernetes clusters.\n  creationTimestamp: \"2026-02-13T15:32:27Z\"\n  name: kube-root-ca.crt\n  namespace: default\n  resourceVersion: \"2076\"\n  uid: 6739002b-c854-4399-8594-09ff5b298458\ndata:\n  ca.crt: |\n    -----BEGIN CERTIFICATE-----\n    MIIE9DCCAtygAwIBAgIUDjWE1b3Ry0XRkZDbBrz7MzRTKTUwDQYJKoZIhvcNAQEN\n    ...\n    -----END CERTIFICATE-----\n"
+      }
+    }
+  }
+}

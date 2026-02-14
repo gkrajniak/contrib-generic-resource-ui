@@ -1,51 +1,75 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  OnInit,
   computed,
+  effect,
   inject,
   input,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ButtonComponent } from '@fundamental-ngx/core/button';
+import { BusyIndicatorComponent } from '@fundamental-ngx/core/busy-indicator';
 import { ToolbarComponent, ToolbarSpacerDirective, ToolbarSeparatorComponent } from '@fundamental-ngx/core/toolbar';
 import { TitleComponent } from '@fundamental-ngx/core/title';
 import { MessageToastService } from '@fundamental-ngx/core/message-toast';
 import { Resource } from 'models/index';
-import { resourceToYaml, countHiddenAnnotations } from 'utils/yaml-utils';
 import { Store } from '@ngrx/store';
 import { closeYamlPanel } from 'state/ui/ui.actions';
+import { selectResourceContext } from 'state/context/context.selectors';
+import { GenericResourceService } from 'services/resource/generic-resource.service';
+import { filter, take } from 'rxjs';
+import { MonacoYamlViewerComponent } from 'components/shared/monaco-yaml-viewer/monaco-yaml-viewer.component';
 
 @Component({
   selector: 'app-yaml-panel',
   imports: [
     ButtonComponent,
+    BusyIndicatorComponent,
     ToolbarComponent,
     ToolbarSpacerDirective,
     ToolbarSeparatorComponent,
     TitleComponent,
+    MonacoYamlViewerComponent,
   ],
   template: `
     <div class="yaml-panel-container">
       <fd-toolbar size="xs">
         <h5 fd-title [headerSize]="5">YAML</h5>
         <fd-toolbar-spacer></fd-toolbar-spacer>
-        @if (hiddenAnnotationCount() > 0) {
+        @if (isOutdated()) {
           <button
             fd-button
             fdType="transparent"
-            [glyph]="hideAnnotations() ? 'show' : 'hide'"
-            [ariaLabel]="hideAnnotations() ? 'Show hidden annotations' : 'Hide annotations'"
-            (click)="toggleAnnotations()"
+            glyph="refresh"
+            ariaLabel="Refresh - newer version available"
+            [disabled]="loading()"
+            (click)="onRefresh()"
           >
-            {{ hideAnnotations() ? 'Show ' + hiddenAnnotationCount() + ' hidden' : 'Hide annotations' }}
+            Refresh
           </button>
           <fd-toolbar-separator></fd-toolbar-separator>
         }
         <button
           fd-button
           fdType="transparent"
+          [glyph]="hideManagedFields() ? 'show' : 'hide'"
+          [ariaLabel]="hideManagedFields() ? 'Show managed fields' : 'Hide managed fields'"
+          [disabled]="loading()"
+          (click)="toggleManagedFields()"
+        >
+          {{ hideManagedFields() ? 'Show managed fields' : 'Hide managed fields' }}
+        </button>
+        <fd-toolbar-separator></fd-toolbar-separator>
+        <!-- eslint-disable @angular-eslint/template/elements-content -->
+        <button
+          fd-button
+          fdType="transparent"
           glyph="copy"
           ariaLabel="Copy"
+          [disabled]="loading()"
           (click)="onCopy()"
         ></button>
         <button
@@ -53,6 +77,7 @@ import { closeYamlPanel } from 'state/ui/ui.actions';
           fdType="transparent"
           glyph="download"
           ariaLabel="Download"
+          [disabled]="loading()"
           (click)="onDownload()"
         ></button>
         <button
@@ -62,9 +87,19 @@ import { closeYamlPanel } from 'state/ui/ui.actions';
           ariaLabel="Close"
           (click)="onClose()"
         ></button>
+        <!-- eslint-enable @angular-eslint/template/elements-content -->
       </fd-toolbar>
 
-      <pre class="yaml-content">{{ yamlContent() }}</pre>
+      <fd-busy-indicator [loading]="loading()" size="m" [block]="true" class="yaml-content-container">
+        @if (error()) {
+          <div class="error-message">
+            <span class="error-icon">&#9888;</span>
+            <span>{{ error() }}</span>
+          </div>
+        } @else {
+          <app-monaco-yaml-viewer [content]="yamlContent()"></app-monaco-yaml-viewer>
+        }
+      </fd-busy-indicator>
     </div>
   `,
   styles: [
@@ -75,43 +110,160 @@ import { closeYamlPanel } from 'state/ui/ui.actions';
         flex-direction: column;
         background: var(--sapBackgroundColor);
       }
-      .yaml-content {
+      .yaml-content-container {
         flex: 1;
-        overflow: auto;
+        overflow: hidden;
+      }
+      .error-message {
         padding: 1rem;
-        margin: 0;
-        font-family: monospace;
-        font-size: 0.8125rem;
-        line-height: 1.5;
-        white-space: pre-wrap;
-        word-break: break-word;
+        color: var(--sapNegativeTextColor);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .error-icon {
+        font-size: 1.25rem;
       }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class YamlPanelComponent {
+export class YamlPanelComponent implements OnInit {
   private messageToast = inject(MessageToastService);
   private store = inject(Store);
+  private resourceService = inject(GenericResourceService);
+  private destroyRef = inject(DestroyRef);
 
   readonly resource = input.required<Resource>();
 
-  protected hideAnnotations = signal(true);
-
-  protected readonly hiddenAnnotationCount = computed(() => {
-    return countHiddenAnnotations(this.resource());
-  });
+  protected readonly resourceContext = toSignal(this.store.select(selectResourceContext));
+  protected readonly rawYamlContent = signal<string>('');
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly yamlResourceVersion = signal<string | null>(null);
+  protected readonly hideManagedFields = signal(true);
 
   protected readonly yamlContent = computed(() => {
-    return resourceToYaml(this.resource(), this.hideAnnotations());
+    const raw = this.rawYamlContent();
+    if (!raw) return '';
+    return this.hideManagedFields() ? this.stripManagedFieldsFromYaml(raw) : raw;
   });
 
-  toggleAnnotations(): void {
-    this.hideAnnotations.update((v) => !v);
+  protected readonly currentResourceVersion = computed(() => {
+    return this.resource()?.metadata?.resourceVersion ?? null;
+  });
+
+  protected readonly isOutdated = computed(() => {
+    const yamlVersion = this.yamlResourceVersion();
+    const currentVersion = this.currentResourceVersion();
+    if (!yamlVersion || !currentVersion) return false;
+    return yamlVersion !== currentVersion;
+  });
+
+  constructor() {
+    effect(() => {
+      const yaml = this.rawYamlContent();
+      if (yaml) {
+        this.yamlResourceVersion.set(this.extractResourceVersion(yaml));
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadYaml();
+  }
+
+  private extractResourceVersion(yaml: string): string | null {
+    const match = yaml.match(/resourceVersion:\s*["']?(\d+)["']?/);
+    return match ? match[1] : null;
+  }
+
+  private stripManagedFieldsFromYaml(yaml: string): string {
+    const lines = yaml.split('\n');
+    const result: string[] = [];
+    let inManagedFields = false;
+    let managedFieldsIndent = 0;
+
+    for (const line of lines) {
+      // Check if this is the managedFields key
+      const managedFieldsMatch = line.match(/^(\s*)managedFields:/);
+      if (managedFieldsMatch) {
+        inManagedFields = true;
+        managedFieldsIndent = managedFieldsMatch[1].length;
+        continue;
+      }
+
+      if (inManagedFields) {
+        // Check if we're still in managedFields section by indent
+        const currentIndent = line.match(/^(\s*)/)?.[1].length ?? 0;
+        const isEmptyOrComment = line.trim() === '' || line.trim().startsWith('#');
+
+        // Exit managedFields if we find a line with same or less indentation
+        // that isn't empty or a continuation
+        if (!isEmptyOrComment && currentIndent <= managedFieldsIndent && line.trim() !== '') {
+          inManagedFields = false;
+          result.push(line);
+        }
+        // Skip lines within managedFields
+        continue;
+      }
+
+      result.push(line);
+    }
+
+    return result.join('\n');
+  }
+
+  private loadYaml(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.store
+      .select(selectResourceContext)
+      .pipe(
+        filter((ctx) => !!ctx),
+        take(1),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((ctx) => {
+        if (!ctx) {
+          this.error.set('Context not available');
+          this.loading.set(false);
+          return;
+        }
+
+        const resourceName = this.resource().metadata.name;
+
+        this.resourceService
+          .readYaml(resourceName, ctx.resourceDefinition, ctx)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (yaml) => {
+              this.rawYamlContent.set(yaml);
+              this.loading.set(false);
+            },
+            error: (err) => {
+              console.error('Failed to load YAML:', err);
+              this.error.set('Failed to load YAML');
+              this.loading.set(false);
+            },
+          });
+      });
+  }
+
+  toggleManagedFields(): void {
+    this.hideManagedFields.update((v) => !v);
+  }
+
+  onRefresh(): void {
+    this.loadYaml();
   }
 
   onCopy(): void {
-    navigator.clipboard.writeText(this.yamlContent()).then(() => {
+    const content = this.yamlContent();
+    if (!content) return;
+
+    navigator.clipboard.writeText(content).then(() => {
       this.messageToast.open('YAML copied to clipboard', {
         duration: 3000,
       });
@@ -120,6 +272,8 @@ export class YamlPanelComponent {
 
   onDownload(): void {
     const yaml = this.yamlContent();
+    if (!yaml) return;
+
     const blob = new Blob([yaml], { type: 'text/yaml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

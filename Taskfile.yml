@@ -281,3 +281,101 @@ tasks:
     cmds:
       - rm -rf test-results/screenshots/*
       - echo "Screenshot directory cleaned"
+
+  fixtures:capture:
+    desc: "Capture schema and sample data from live gateway to fixtures"
+    vars:
+      RESOURCE_NAME: '{{.RESOURCE_NAME | default ""}}'
+    cmds:
+      - ./scripts/capture-fixture.sh {{.RESOURCE_NAME}}
+
+  fixtures:capture-all:
+    desc: "Capture fixtures for all configs in src/assets/configs/"
+    cmds:
+      - |
+        for config in src/assets/configs/*.json; do
+          name=$(basename "$config" .json)
+          echo "=== Capturing: $name ==="
+          ./scripts/capture-fixture.sh "$name" || echo "Failed to capture $name"
+          echo ""
+        done
+
+  screenshots:offline:
+    desc: "Take screenshots with mocked GraphQL (no gateway needed)"
+    vars:
+      SERVER_PID:
+        sh: lsof -ti :4200 2>/dev/null || echo ""
+    cmds:
+      - |
+        # Clean previous offline screenshots
+        rm -rf test-results/screenshots/offline/*
+        mkdir -p test-results/screenshots/offline
+      - |
+        # Check if server is already running
+        if [ -n "{{.SERVER_PID}}" ]; then
+          echo "Dev server already running (PID: {{.SERVER_PID}})"
+        else
+          echo "Starting dev server..."
+          npm start &
+          # Wait for server to be ready
+          for i in $(seq 1 30); do
+            if curl -k -s -o /dev/null -w "" https://localhost:4200/ui/generic-resource/ 2>/dev/null; then
+              echo "Server ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+        fi
+      - |
+        # Run offline screenshot tests
+        npx playwright test e2e/offline-screenshots.spec.ts --reporter=list
+      - |
+        echo ""
+        echo "Offline screenshots saved to: test-results/screenshots/offline/"
+        echo ""
+        echo "Resource directories:"
+        ls -d test-results/screenshots/offline/*/ 2>/dev/null | while read dir; do
+          count=$(ls -1 "$dir"/*.png 2>/dev/null | wc -l)
+          echo "  $(basename "$dir"): $count screenshots"
+        done
+
+  screenshots:multi:
+    desc: "Take screenshots for all resource types in src/assets/configs/"
+    vars:
+      SERVER_PID:
+        sh: lsof -ti :4200 2>/dev/null || echo ""
+    cmds:
+      - |
+        # Clean previous screenshots
+        rm -rf test-results/screenshots/*
+        mkdir -p test-results/screenshots
+      - |
+        # Check if server is already running
+        if [ -n "{{.SERVER_PID}}" ]; then
+          echo "Dev server already running (PID: {{.SERVER_PID}})"
+        else
+          echo "Starting dev server..."
+          npm start &
+          # Wait for server to be ready
+          for i in $(seq 1 30); do
+            if curl -k -s -o /dev/null -w "" https://localhost:4200/ui/generic-resource/ 2>/dev/null; then
+              echo "Server ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+        fi
+      - |
+        # Run multi-resource screenshot tests
+        npx playwright test e2e/multi-resource-screenshots.spec.ts --reporter=list
+      - |
+        echo ""
+        echo "Screenshots saved to: test-results/screenshots/"
+        echo ""
+        echo "Resource directories:"
+        ls -d test-results/screenshots/*/ 2>/dev/null | while read dir; do
+          count=$(ls -1 "$dir"/*.png 2>/dev/null | wc -l)
+          echo "  $(basename "$dir"): $count screenshots"
+        done

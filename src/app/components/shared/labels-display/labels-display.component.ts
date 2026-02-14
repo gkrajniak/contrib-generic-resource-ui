@@ -27,6 +27,7 @@ interface LabelEntry {
           </span>
         }
         @if (hiddenEntries().length > 0 && !showHidden()) {
+          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
           <a fd-link (click)="toggleHidden()" class="show-more-link">
             +{{ hiddenEntries().length }} hidden
           </a>
@@ -38,6 +39,7 @@ interface LabelEntry {
               <span class="label-value">{{ truncateValue(label.value) }}</span>
             </span>
           }
+          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
           <a fd-link (click)="toggleHidden()" class="show-more-link">
             Show less
           </a>

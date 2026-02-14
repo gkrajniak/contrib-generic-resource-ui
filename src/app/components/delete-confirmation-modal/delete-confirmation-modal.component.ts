@@ -33,6 +33,7 @@ import { closeDeleteConfirmation } from 'state/ui/ui.actions';
   ],
   template: `
     @if (isOpen()) {
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
       <div class="dialog-backdrop" (click)="onCancel()"></div>
       <div class="dialog-container" role="dialog" aria-modal="true">
         <div class="dialog-header">
@@ -52,6 +53,7 @@ import { closeDeleteConfirmation } from 'state/ui/ui.actions';
             </p>
 
             <div fd-form-item>
+              <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
               <label fd-form-label>Resource Name</label>
               <input
                 fd-form-control

@@ -1,5 +1,5 @@
 import { DeleteConfirmationModalComponent } from './components/delete-confirmation-modal/delete-confirmation-modal.component';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemingService } from '@fundamental-ngx/core';
 
@@ -16,7 +16,9 @@ import { ThemingService } from '@fundamental-ngx/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  constructor(themingService: ThemingService) {
-    themingService.init();
+  private themingService = inject(ThemingService);
+
+  constructor() {
+    this.themingService.init();
   }
 }

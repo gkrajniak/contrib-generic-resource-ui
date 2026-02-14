@@ -5,7 +5,6 @@ import {
   DetailSection,
   FieldAnalysis,
   SchemaField,
-  SectionType,
 } from 'models/index';
 import { humanizeFieldName } from 'utils/humanize';
 

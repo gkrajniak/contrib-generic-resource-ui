@@ -1,0 +1,953 @@
+{
+  "introspection": {
+    "AccountInfo": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "apiVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "kind",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "metadata",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "annotations",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "creationTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionGracePeriodSeconds",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "finalizers",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generateName",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generation",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "labels",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "managedFields",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "namespace",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "ownerReferences",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "resourceVersion",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "selfLink",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "uid",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "spec",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "account",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecaccount",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "clusterInfo",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecclusterInfo",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "fga",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecfga",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "oidc",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecoidc",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "organization",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecorganization",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "parentAccount",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecparentAccount",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospec",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "status",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "JSONString",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfo"
+        }
+      }
+    },
+    "AccountInfospec": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "account",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "generatedClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "originClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "path",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "type",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "url",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecaccount",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "clusterInfo",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "ca",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecclusterInfo",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "fga",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "store",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "AccountInfospecspecfgaspecfgastore",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecfga",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "oidc",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "clients",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "JSONString",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "issuerUrl",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecoidc",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "organization",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "generatedClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "originClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "path",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "type",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "url",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecorganization",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "parentAccount",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "generatedClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "originClusterId",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "path",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "type",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "url",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecparentAccount",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospec"
+        }
+      }
+    },
+    "AccountInfospecspecaccount": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "generatedClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "name",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "originClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "path",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "type",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "url",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecaccount"
+        }
+      }
+    },
+    "AccountInfospecspecorganization": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "generatedClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "name",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "originClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "path",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "type",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "url",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecorganization"
+        }
+      }
+    },
+    "AccountInfospecspecoidc": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "clients",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "JSONString",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "issuerUrl",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecoidc"
+        }
+      }
+    },
+    "AccountInfospecspecfga": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "store",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "id",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "AccountInfospecspecfgaspecfgastore",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecfga"
+        }
+      }
+    },
+    "AccountInfospecspecparentAccount": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "generatedClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "name",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "originClusterId",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "path",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "type",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "url",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecparentAccount"
+        }
+      }
+    },
+    "AccountInfospecspecclusterInfo": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "ca",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecclusterInfo"
+        }
+      }
+    },
+    "AccountInfospecspecfgaspecfgastore": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "id",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "AccountInfospecspecfgaspecfgastore"
+        }
+      }
+    }
+  },
+  "listResponse": {
+    "data": {
+      "core_platform_mesh_io": {
+        "v1alpha1": {
+          "AccountInfoes": {
+            "items": [
+              {
+                "metadata": {
+                  "creationTimestamp": "2026-02-13T15:32:28Z",
+                  "labels": null,
+                  "name": "account",
+                  "namespace": null,
+                  "uid": "dd79ede1-142a-4cf0-9c89-c86e028b53f7"
+                },
+                "spec": {
+                  "account": {
+                    "generatedClusterId": "28xbqo0bwebrv2o3",
+                    "name": "tobias-test-home",
+                    "originClusterId": "3jzsh1qkirtpbbja",
+                    "path": "root:orgs:sap:workspaces:tobias-test-home",
+                    "type": "hs-workspace",
+                    "url": "https://localhost:8443/clusters/root:orgs:sap:workspaces:tobias-test-home"
+                  },
+                  "organization": {
+                    "name": "sap"
+                  }
+                }
+              }
+            ],
+            "resourceVersion": "20845"
+          }
+        }
+      }
+    }
+  },
+  "detailResponse": {
+    "data": {
+      "core_platform_mesh_io": {
+        "v1alpha1": {
+          "AccountInfo": {
+            "metadata": {
+              "annotations": {
+                "kcp.io/cluster": "28xbqo0bwebrv2o3"
+              },
+              "creationTimestamp": "2026-02-13T15:32:28Z",
+              "deletionTimestamp": null,
+              "generation": 1,
+              "labels": null,
+              "name": "account",
+              "namespace": null,
+              "resourceVersion": "2333",
+              "uid": "dd79ede1-142a-4cf0-9c89-c86e028b53f7"
+            },
+            "spec": {
+              "account": {
+                "generatedClusterId": "28xbqo0bwebrv2o3",
+                "name": "tobias-test-home",
+                "originClusterId": "3jzsh1qkirtpbbja",
+                "path": "root:orgs:sap:workspaces:tobias-test-home",
+                "type": "hs-workspace",
+                "url": "https://localhost:8443/clusters/root:orgs:sap:workspaces:tobias-test-home"
+              },
+              "clusterInfo": {
+                "ca": "-----BEGIN CERTIFICATE-----\nMIIE9DCCAtygAwIBAgIUDjWE1b3Ry0XRkZDbBrz7MzRTKTUwDQYJKoZIhvcNAQEN\nBQAwEjEQMA4GA1UEAxMHcm9vdC1jYTAeFw0yNjAyMTMxNTE3NTdaFw0zNjAyMTEx\nNTE3NTdaMBIxEDAOBgNVBAMTB3Jvb3QtY2EwggIiMA0GCSqGSIb3DQEBAQUAA4IC\nDwAwggIKAoICAQDYXFO7on6DnPgHdmH0jlvm4fp038mm1P0457iyh6UZMUg+WhPO\nHngGoVBkTmF9UPjMTxGDHTj/B836e7L94no2VOlHj2sy99vXk+YuHNDOuAoTZkRr\nsdASiYA0oX3xffPZylxWw4BH/hGgr5jeQxK7vB/JPbH4gOSdhcE1EPKUrJiquqKv\njGf7iLRm9GoVJQlX0CkLNdAJ5iC7UTuL/DyXVuOp3azzmTGN3AL9iNV5ml8vwyEk\naC6G+k212mWboimMxNVILvKnLnAGyxd5LSERQLQ3NtWbeaNS/B4Ss5l0U6VZgqfk\nW3ktjmD8FcGiQrS07A8hVnkQNKCL4YK0eUT0t4nOY8SBqpgDZP8ArdCndFP0+utk\nKXONAGVskWPww8XFvGzUD0ViVYH/UWAzTlhdKfqYGvDROiLDYNYFqXKTaTa2JVE5\nT55z3idB26aEOzYP8sNZfx1/AqTLTxkF7OQ0vzVdf1MlqHkAkCIp1jyCnl4qV0HU\nJ3As4IjdqXRF1vcNlegc5MAafHrIUlhp9ItlhZ16XXEUxauGLPt9oG034qcnqLM7\nuk2LdFJOS5oaPxXpppLdXEP+cUJWs9/Qt96OrltVIKmMy7Fv4XTsgnDeUR0RpwFp\ns9uAMTvuNjQMs+fNh+1YG2MVc+6rcfjzM1VgOH787NKek2Cbn2YXcVStHwIDAQAB\no0IwQDAOBgNVHQ8BAf8EBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU\nntb6qDae8OorloPHJUpyDQW19JcwDQYJKoZIhvcNAQENBQADggIBAESzrprQ/SBU\nWFHZKOvLs11biE6+4u3DLvUzPVR+5uEcKcM/VPIa9wAmlXZRnR0TnGX8WYwznQQt\nkpVrDQaPN6WrOLDEMEFemdO069QEOkek4GlbnCI5EwcsGjxfFNTlo1jVB2hLxcBg\nWAaNB2zUXrjhRQuG/cm8nGzWYAO9dOg24ycgHOWKLQWHDf3zd9uamzWGz8rU+e7E\nTRq+STgySLjW1d4nfZbLHeKA9hN8WalIoFyBzM9BreoNUz7xpS3pFquv/vS6VPx4\n0zztXvxgPDe15dL3eZAuNAjapkPUBoEF/1gWlmhG+QLt7OQOvE0wujqCuxaO3psh\nhFzMWKMJDJvSGO1SXT0ZYQRazeHRgkBk6gjnnf72fj1fq/azjcUKoF6uHg+SryHW\ne8Zu0TB6DLRwJIgqm1n5Cg3xpH9x9imdpAqtEEaNBjGG7+rxShf7b6X1o7XTvM+E\n3/0UYkT0EdiMhT9RZR5mUSdDXmB5MLCGxPkCG65lLMesUzO0+19anFh015waMfKA\nO5zvPJ3aA8F4+anB7kqjVVQ6XJLUUOAcyJAAzlkhPj6PHpLejhiEwKiXvotthjt8\no82P8SDIh0PzmftGtJ1gsVQWcZ9SXe6jJwT/9+WDUoRcXMJDFNx2PiGFYfsX853n\nWFWnDu4eBDDPI7+XAcej8FlGHh5WWNa/\n-----END CERTIFICATE-----\n"
+              },
+              "fga": {
+                "store": {
+                  "id": "01KHBSRCR6BFS3MPT93ZQ19MBP"
+                }
+              },
+              "oidc": {
+                "clients": "{\"kubectl\":{\"clientId\":\"5876a4a0-f5bf-45eb-ae6a-3e9f630fb3f0\"},\"sap\":{\"clientId\":\"2f9adc1a-b904-4587-8a79-7ab720f57370\"}}",
+                "issuerUrl": "https://portal.localhost:8443/keycloak/realms/sap"
+              },
+              "organization": {
+                "name": "sap"
+              },
+              "parentAccount": {
+                "name": "workspaces",
+                "path": "root:orgs:sap:workspaces"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "yamlResponse": {
+    "data": {
+      "core_platform_mesh_io": {
+        "v1alpha1": {
+          "AccountInfoYaml": "apiVersion: core.platform-mesh.io/v1alpha1\nkind: AccountInfo\nmetadata:\n  annotations:\n    kcp.io/cluster: 28xbqo0bwebrv2o3\n  creationTimestamp: \"2026-02-13T15:32:28Z\"\n  name: account\n  resourceVersion: \"2333\"\n  uid: dd79ede1-142a-4cf0-9c89-c86e028b53f7\nspec:\n  account:\n    generatedClusterId: 28xbqo0bwebrv2o3\n    name: tobias-test-home\n    originClusterId: 3jzsh1qkirtpbbja\n    path: root:orgs:sap:workspaces:tobias-test-home\n    type: hs-workspace\n    url: https://localhost:8443/clusters/root:orgs:sap:workspaces:tobias-test-home\n  clusterInfo:\n    ca: |\n      -----BEGIN CERTIFICATE-----\n      MIIE9DCCAtygAwIBAgIUDjWE1b3Ry0XRkZDbBrz7MzRTKTUwDQYJKoZIhvcNAQEN\n      ...\n      -----END CERTIFICATE-----\n  fga:\n    store:\n      id: 01KHBSRCR6BFS3MPT93ZQ19MBP\n  oidc:\n    clients: '{\"kubectl\":{\"clientId\":\"5876a4a0-f5bf-45eb-ae6a-3e9f630fb3f0\"}}'\n    issuerUrl: https://portal.localhost:8443/keycloak/realms/sap\n  organization:\n    name: sap\n  parentAccount:\n    name: workspaces\n    path: root:orgs:sap:workspaces\n"
+        }
+      }
+    }
+  }
+}

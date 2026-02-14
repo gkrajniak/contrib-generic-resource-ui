@@ -4,6 +4,8 @@ This directory contains Playwright e2e tests for the generic-resource-ui.
 
 ## Quick Start
 
+### Online Mode (requires gateway)
+
 1. **Start the dev server** (in terminal 1):
    ```bash
    task dev CONFIG_NAME=accountinfo
@@ -14,76 +16,121 @@ This directory contains Playwright e2e tests for the generic-resource-ui.
    task screenshots
    ```
 
-3. **View results**:
-   ```bash
-   task screenshots:open
-   # or
-   open test-results/screenshots/
-   ```
+### Offline Mode (no gateway needed)
+
+Take screenshots using mocked GraphQL responses:
+
+```bash
+task screenshots:offline
+```
+
+Fixtures are stored in `e2e/fixtures/` and can be updated from a live gateway:
+
+```bash
+task fixtures:capture RESOURCE_NAME=accountinfo
+```
 
 ## Task Commands
 
 | Command | Description |
 |---------|-------------|
-| `task screenshots` | Take screenshots of standalone app |
-| `task screenshots:all` | Take all screenshots (portal + standalone) |
+| `task screenshots` | Take screenshots of current config |
+| `task screenshots:multi` | Take screenshots for all configs in src/assets/configs/ |
+| `task screenshots:offline` | Take screenshots with mocked GraphQL (no gateway) |
 | `task screenshots:open` | Open screenshots folder |
 | `task screenshots:clean` | Remove all screenshots |
+| `task fixtures:capture` | Capture live data to fixture files |
 | `task test:e2e` | Run all e2e tests |
 | `task test:e2e:headed` | Run tests with browser visible |
 | `task test:e2e:ui` | Open Playwright UI mode |
 
 ## Test Files
 
-- `visual-layout.spec.ts` - Screenshots for layout iteration
-- `create-edit-modal.spec.ts` - Modal functionality tests
+| File | Description |
+|------|-------------|
+| `visual-layout.spec.ts` | Single resource screenshots (uses active config) |
+| `multi-resource-screenshots.spec.ts` | Screenshots for all configs in src/assets/configs/ |
+| `offline-screenshots.spec.ts` | Screenshots using mocked GraphQL responses |
 
-## Running Specific Tests
+## Fixtures
+
+Fixtures in `e2e/fixtures/` contain mocked GraphQL responses:
+
+```
+e2e/fixtures/
+├── accountinfo.fixture.json
+├── configmaps.fixture.json
+└── namespaces.fixture.json
+```
+
+Each fixture contains:
+- `listResponse`: Response for list queries
+- `detailResponse`: Response for single-resource queries
+- `schema` (optional): GraphQL schema for introspection
+
+### Capturing Fixtures from Live Gateway
 
 ```bash
-# Run only standalone tests (faster, no portal)
-npx playwright test e2e/visual-layout.spec.ts --grep "Standalone"
+# Ensure you have a valid token
+echo 'your-jwt-token' > .secret/token
 
-# Run with browser visible
-npx playwright test --headed
+# Capture fixture for a specific resource
+task fixtures:capture RESOURCE_NAME=accountinfo
 
-# Run single test file
-npx playwright test e2e/visual-layout.spec.ts
-
-# Debug mode (step through)
-npx playwright test --debug
+# List available configs to capture
+task fixtures:capture
 ```
 
 ## Screenshot Output
 
-Screenshots are saved to `test-results/screenshots/`:
+Screenshots are organized by test type:
 
-- `standalone-list.png` - List view
-- `standalone-detail-full.png` - Full detail page
-- `standalone-detail-content.png` - Just the content area
-- `standalone-spec-panel.png` - Spec section panel
-- `standalone-card-*.png` - Individual nested cards
-- `viewport-*.png` - Responsive breakpoint screenshots
+```
+test-results/screenshots/
+├── 01-list-view.png              # From visual-layout.spec.ts
+├── 02-detail-view-full.png
+├── 03-detail-content.png
+├── accountinfo/                   # From multi-resource-screenshots.spec.ts
+│   ├── 01-list-view.png
+│   └── 02-detail-view-full.png
+├── configmaps/
+│   └── ...
+└── offline/                       # From offline-screenshots.spec.ts
+    ├── accountinfo/
+    └── configmaps/
+```
 
-## Configuration
+## Running Specific Tests
 
-The visual tests use the config from `LOCAL_DEV_SETTINGS` in the spec file.
-To test different resources, modify the config URL:
+```bash
+# Run only single-resource test
+npx playwright test e2e/visual-layout.spec.ts
 
-```typescript
-const LOCAL_DEV_SETTINGS = {
-  isActive: true,
-  configs: [{ url: 'https://localhost:4200/ui/generic-resource/assets/config.accountinfo.json' }],
-  serviceProviderConfig: {},
-};
+# Run multi-resource tests
+npx playwright test e2e/multi-resource-screenshots.spec.ts
+
+# Run offline tests
+npx playwright test e2e/offline-screenshots.spec.ts
+
+# Run with browser visible
+npx playwright test --headed
+
+# Debug mode (step through)
+npx playwright test --debug
 ```
 
 ## Tips for Layout Iteration
 
 1. Start dev server: `task dev CONFIG_NAME=accountinfo`
 2. Make CSS/template changes
-3. Run `task screenshots` to capture new screenshots
+3. Run `task screenshots:keep-server` for quick screenshots (keeps server running)
 4. Compare visually with previous captures
 5. Repeat until satisfied
 
 For faster iteration, use `task test:e2e:ui` for Playwright's interactive mode.
+
+## Adding New Resource Types
+
+1. Create config file: `src/assets/configs/{resource}.json`
+2. Capture fixture: `task fixtures:capture RESOURCE_NAME={resource}`
+3. Run offline test: `task screenshots:offline`

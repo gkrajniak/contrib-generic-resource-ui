@@ -94,7 +94,7 @@ export class SchemaEffects {
     )
   );
 
-  private extractNestedTypeNames(resourceType: IntrospectionType, kind: string): string[] {
+  private extractNestedTypeNames(resourceType: IntrospectionType, _kind: string): string[] {
     const typeNames: string[] = [];
     const fields = resourceType.fields ?? [];
 

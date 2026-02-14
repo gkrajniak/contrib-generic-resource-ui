@@ -54,6 +54,7 @@ import { getValueByPath } from 'utils/yaml-utils';
               @for (column of columns(); track column.key) {
                 <td fd-table-cell>
                   @if (column.type === 'link') {
+                    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
                     <a
                       class="fd-link"
                       (click)="onRowClick(resource)"
@@ -79,6 +80,7 @@ import { getValueByPath } from 'utils/yaml-utils';
                 ></app-ready-status-badge>
               </td>
               <td fd-table-cell>
+                <!-- eslint-disable @angular-eslint/template/elements-content -->
                 <button
                   fd-button
                   fdType="transparent"
@@ -93,6 +95,7 @@ import { getValueByPath } from 'utils/yaml-utils';
                   ariaLabel="Delete"
                   (click)="onDelete(resource)"
                 ></button>
+                <!-- eslint-enable @angular-eslint/template/elements-content -->
               </td>
             </tr>
           }

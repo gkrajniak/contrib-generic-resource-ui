@@ -4,12 +4,14 @@ import { YamlPanelComponent } from './yaml-panel/yaml-panel.component';
 import { ReadyStatusBadgeComponent } from 'components/shared/ready-status-badge/ready-status-badge.component';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
 import { LabelsDisplayComponent } from 'components/shared/labels-display/labels-display.component';
+import { CopyButtonComponent } from 'components/shared/copy-button/copy-button.component';
 import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -64,6 +66,7 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
     ReadyStatusBadgeComponent,
     ValueCellComponent,
     LabelsDisplayComponent,
+    CopyButtonComponent,
   ],
   template: `
     <fd-busy-indicator [loading]="loading()" size="m" [block]="true">
@@ -104,13 +107,15 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
           <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
           <fdp-dynamic-page-header [collapsible]="true" [pinnable]="true">
             <fd-facet-group ariaLabel="Resource Metadata">
-              <fd-facet type="key-value">
-                <label fd-form-label [colon]="true">Status</label>
-                <app-ready-status-badge
-                  [status]="readyStatus()"
-                  [showMessage]="true"
-                ></app-ready-status-badge>
-              </fd-facet>
+              @if (hasStatus()) {
+                <fd-facet type="key-value">
+                  <label fd-form-label [colon]="true">Status</label>
+                  <app-ready-status-badge
+                    [status]="readyStatus()"
+                    [showMessage]="true"
+                  ></app-ready-status-badge>
+                </fd-facet>
+              }
 
               @if (resource()!.metadata.namespace) {
                 <fd-facet type="key-value">
@@ -129,25 +134,6 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
                 </span>
               </fd-facet>
 
-              <fd-facet type="key-value">
-                <label fd-form-label [colon]="true">Resource Version</label>
-                <span fd-object-status [label]="resource()!.metadata.resourceVersion"></span>
-              </fd-facet>
-
-              @if (resource()!.metadata.generation) {
-                <fd-facet type="key-value">
-                  <label fd-form-label [colon]="true">Generation</label>
-                  <span fd-object-status [label]="resource()!.metadata.generation?.toString() ?? ''"></span>
-                </fd-facet>
-              }
-
-              <fd-facet type="key-value" class="uid-facet">
-                <label fd-form-label [colon]="true">UID</label>
-                <span class="uid-text" [title]="resource()!.metadata.uid">
-                  {{ truncateUid(resource()!.metadata.uid) }}
-                </span>
-              </fd-facet>
-
               @if (hasLabels()) {
                 <fd-facet type="custom" class="labels-facet">
                   <div class="facet-labels-section">
@@ -160,19 +146,83 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
                 </fd-facet>
               }
 
-              @if (hasAnnotations()) {
-                <fd-facet type="custom" class="labels-facet">
-                  <div class="facet-labels-section">
-                    <label fd-form-label [colon]="true">Annotations</label>
-                    <app-labels-display
-                      [labels]="resource()!.metadata.annotations"
-                      [maxLabels]="3"
-                      [hideAnnotations]="true"
-                    ></app-labels-display>
-                  </div>
-                </fd-facet>
-              }
+              <fd-facet type="custom" class="more-link-facet">
+                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+                <span
+                  class="show-more-link"
+                  (click)="toggleExtendedMetadata()"
+                >
+                  {{ showExtendedMetadata() ? 'Show less' : 'More...' }}
+                </span>
+              </fd-facet>
             </fd-facet-group>
+
+            @if (showExtendedMetadata()) {
+              <fd-facet-group ariaLabel="Extended Metadata" class="extended-metadata">
+                <fd-facet type="key-value">
+                  <label fd-form-label [colon]="true">Resource Version</label>
+                  <span fd-object-status [label]="resource()!.metadata.resourceVersion"></span>
+                </fd-facet>
+
+                @if (resource()!.metadata.generation) {
+                  <fd-facet type="key-value">
+                    <label fd-form-label [colon]="true">Generation</label>
+                    <span fd-object-status [label]="resource()!.metadata.generation?.toString() ?? ''"></span>
+                  </fd-facet>
+                }
+
+                <fd-facet type="key-value" class="uid-facet">
+                  <label fd-form-label [colon]="true">UID</label>
+                  <span class="uid-container">
+                    <span class="uid-text">
+                      {{ resource()!.metadata.uid }}
+                    </span>
+                    <app-copy-button [value]="resource()!.metadata.uid ?? ''" label="UID"></app-copy-button>
+                  </span>
+                </fd-facet>
+
+                @if (hasAnnotations()) {
+                  <fd-facet type="custom" class="labels-facet">
+                    <div class="facet-labels-section">
+                      <label fd-form-label [colon]="true">Annotations</label>
+                      <app-labels-display
+                        [labels]="resource()!.metadata.annotations"
+                        [maxLabels]="10"
+                        [hideAnnotations]="true"
+                      ></app-labels-display>
+                    </div>
+                  </fd-facet>
+                }
+
+                @if (hasFinalizers()) {
+                  <fd-facet type="custom" class="labels-facet">
+                    <div class="facet-labels-section">
+                      <label fd-form-label [colon]="true">Finalizers</label>
+                      <div class="finalizers-list">
+                        @for (finalizer of resource()!.metadata.finalizers; track finalizer) {
+                          <span class="finalizer-tag">{{ finalizer }}</span>
+                        }
+                      </div>
+                    </div>
+                  </fd-facet>
+                }
+
+                @if (hasOwnerReferences()) {
+                  <fd-facet type="custom" class="labels-facet">
+                    <div class="facet-labels-section">
+                      <label fd-form-label [colon]="true">Owner References</label>
+                      <div class="owner-refs-list">
+                        @for (owner of resource()!.metadata.ownerReferences; track owner.uid) {
+                          <span class="owner-ref-tag" [title]="owner.uid">
+                            {{ owner.kind }}/{{ owner.name }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </fd-facet>
+                }
+              </fd-facet-group>
+            }
           </fdp-dynamic-page-header>
           <!-- eslint-enable @angular-eslint/template/label-has-associated-control -->
 
@@ -215,7 +265,9 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
         position: fixed;
         top: 0;
         right: 0;
-        width: 400px;
+        width: 50vw;
+        min-width: 500px;
+        max-width: 900px;
         height: 100%;
         background: var(--sapBackgroundColor);
         border-left: 1px solid var(--sapGroup_TitleBorderColor);
@@ -227,12 +279,17 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
       .yaml-panel.open {
         transform: translateX(0);
       }
+      .uid-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
       .uid-text {
         font-family: monospace;
         font-size: 0.8125rem;
       }
       .uid-facet {
-        max-width: 200px;
+        max-width: 220px;
       }
       .labels-facet {
         min-width: 200px;
@@ -241,6 +298,40 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+      }
+      .more-link-facet {
+        display: flex;
+        align-items: center;
+      }
+      .show-more-link {
+        color: var(--sapLinkColor);
+        cursor: pointer;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .show-more-link:hover {
+        text-decoration: underline;
+      }
+      .extended-metadata {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--sapGroup_TitleBorderColor);
+      }
+      .finalizers-list,
+      .owner-refs-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+      }
+      .finalizer-tag,
+      .owner-ref-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--sapList_Background);
+        border: 1px solid var(--sapGroup_TitleBorderColor);
+        border-radius: 4px;
+        font-family: monospace;
       }
       :host ::ng-deep {
         .fd-facet-group {
@@ -299,6 +390,31 @@ export class ResourceDetailViewComponent implements OnInit {
     const res = this.resource();
     return res?.metadata?.annotations && Object.keys(res.metadata.annotations).length > 0;
   });
+
+  protected readonly hasFinalizers = computed(() => {
+    const res = this.resource();
+    return res?.metadata?.finalizers && res.metadata.finalizers.length > 0;
+  });
+
+  protected readonly hasOwnerReferences = computed(() => {
+    const res = this.resource();
+    return res?.metadata?.ownerReferences && res.metadata.ownerReferences.length > 0;
+  });
+
+  protected readonly hasStatus = computed(() => {
+    const status = this.readyStatus();
+    return status && status.status !== 'unknown';
+  });
+
+  protected readonly hasExtendedMetadata = computed(() => {
+    return this.hasLabels() || this.hasAnnotations() || this.hasFinalizers() || this.hasOwnerReferences();
+  });
+
+  protected readonly showExtendedMetadata = signal(false);
+
+  protected toggleExtendedMetadata(): void {
+    this.showExtendedMetadata.update((v) => !v);
+  }
 
   ngOnInit(): void {
     console.log('[DetailView] ngOnInit called');

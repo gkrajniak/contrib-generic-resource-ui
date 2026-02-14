@@ -41,7 +41,8 @@ export class GenericResourceService {
       variables['namespace'] = context.namespaceId;
     }
 
-    const listQuery = `
+    const listQuery = group
+      ? `
       query ListResources${variablesDef} {
         ${group} {
           ${version} {
@@ -50,6 +51,18 @@ export class GenericResourceService {
               items {
                 ${fieldsSelection}
               }
+            }
+          }
+        }
+      }
+    `
+      : `
+      query ListResources${variablesDef} {
+        ${version} {
+          ${kind}${kindArgs} {
+            resourceVersion
+            items {
+              ${fieldsSelection}
             }
           }
         }
@@ -67,13 +80,15 @@ export class GenericResourceService {
       })
       .pipe(
         map((res: any): ResourceListResult => {
-          const path = `${group}.${version}.${kind}`;
+          const path = group ? `${group}.${version}.${kind}` : `${version}.${kind}`;
           return this.getValueByPath(res.data, path);
         }),
         switchMap((listResult: ResourceListResult) => {
           const { resourceVersion, items } = listResult;
-          // Subscription field name format: {group}_{version}_{plural}
-          const subscriptionOperation = `${group}_${version}_${resourceDefinition.plural}`.toLowerCase();
+          // Subscription field name format: {group}_{version}_{plural} or {version}_{plural} for core API
+          const subscriptionOperation = group
+            ? `${group}_${version}_${resourceDefinition.plural}`.toLowerCase()
+            : `${version}_${resourceDefinition.plural}`.toLowerCase();
 
           let subVariablesDef = '($resourceVersion: String!)';
           let subArgs = '(resourceVersion: $resourceVersion)';
@@ -160,13 +175,23 @@ export class GenericResourceService {
       variables['namespace'] = context.namespaceId;
     }
 
-    const readQuery = `
+    const readQuery = group
+      ? `
       query GetResource${variablesDef} {
         ${group} {
           ${version} {
             ${kind}${kindArgs} {
               ${fieldsSelection}
             }
+          }
+        }
+      }
+    `
+      : `
+      query GetResource${variablesDef} {
+        ${version} {
+          ${kind}${kindArgs} {
+            ${fieldsSelection}
           }
         }
       }
@@ -181,7 +206,7 @@ export class GenericResourceService {
       })
       .pipe(
         map((res: any): Resource => {
-          const path = `${group}.${version}.${kind}`;
+          const path = group ? `${group}.${version}.${kind}` : `${version}.${kind}`;
           return this.getValueByPath(res.data, path);
         }),
         catchError((error) => {
@@ -218,13 +243,23 @@ export class GenericResourceService {
       variables['dryRun'] = ['All'];
     }
 
-    const createMutation = `
+    const createMutation = group
+      ? `
       mutation CreateResource${variablesDef} {
         ${group} {
           ${version} {
             create${kind}${mutationArgs} {
               __typename
             }
+          }
+        }
+      }
+    `
+      : `
+      mutation CreateResource${variablesDef} {
+        ${version} {
+          create${kind}${mutationArgs} {
+            __typename
           }
         }
       }
@@ -277,13 +312,23 @@ export class GenericResourceService {
       variables['dryRun'] = ['All'];
     }
 
-    const updateMutation = `
+    const updateMutation = group
+      ? `
       mutation UpdateResource${variablesDef} {
         ${group} {
           ${version} {
             update${kind}${mutationArgs} {
               __typename
             }
+          }
+        }
+      }
+    `
+      : `
+      mutation UpdateResource${variablesDef} {
+        ${version} {
+          update${kind}${mutationArgs} {
+            __typename
           }
         }
       }
@@ -299,6 +344,65 @@ export class GenericResourceService {
       .pipe(
         catchError((error) => {
           console.error('Error updating resource', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  readYaml(
+    resourceName: string,
+    resourceDefinition: ResourceDefinition,
+    context: ResourceNodeContext
+  ): Observable<string> {
+    const group = this.normalizeGroupName(resourceDefinition.group);
+    const version = resourceDefinition.version;
+    const kind = resourceDefinition.kind;
+    const isNamespaced = resourceDefinition.scope === 'Namespaced';
+
+    const variables: Record<string, any> = { name: resourceName };
+    let variablesDef = '($name: String!)';
+    let kindArgs = '(name: $name)';
+
+    if (isNamespaced && context.namespaceId) {
+      variablesDef = '($name: String!, $namespace: String)';
+      kindArgs = '(name: $name, namespace: $namespace)';
+      variables['namespace'] = context.namespaceId;
+    }
+
+    const yamlQuery = group
+      ? `
+      query GetResourceYaml${variablesDef} {
+        ${group} {
+          ${version} {
+            ${kind}Yaml${kindArgs}
+          }
+        }
+      }
+    `
+      : `
+      query GetResourceYaml${variablesDef} {
+        ${version} {
+          ${kind}Yaml${kindArgs}
+        }
+      }
+    `;
+
+    console.log('[GenericResourceService] YAML query:', yamlQuery);
+
+    return this.apolloFactory
+      .apollo(context)
+      .query({
+        query: gql`${yamlQuery}`,
+        variables,
+        fetchPolicy: 'no-cache',
+      })
+      .pipe(
+        map((res: any): string => {
+          const path = group ? `${group}.${version}.${kind}Yaml` : `${version}.${kind}Yaml`;
+          return this.getValueByPath(res.data, path);
+        }),
+        catchError((error) => {
+          console.error('Error reading resource YAML', error);
           return throwError(() => error);
         })
       );
@@ -324,12 +428,19 @@ export class GenericResourceService {
       variables['namespace'] = context.namespaceId;
     }
 
-    const deleteMutation = `
+    const deleteMutation = group
+      ? `
       mutation DeleteResource${variablesDef} {
         ${group} {
           ${version} {
             delete${kind}${mutationArgs}
           }
+        }
+      }`
+      : `
+      mutation DeleteResource${variablesDef} {
+        ${version} {
+          delete${kind}${mutationArgs}
         }
       }
     `;
