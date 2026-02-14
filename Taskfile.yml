@@ -104,11 +104,10 @@ tasks:
   docker:kind:
     desc: "Build container image with current tag from kind cluster and load it"
     vars:
-      IMAGE_TAG:
-        sh: kubectl get deployment {{.DEPLOYMENT_NAME}} -n {{.DEPLOYMENT_NAMESPACE}} -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d':' -f2
-      IMAGE_NAME: "{{.IMAGE_REPO}}:{{.IMAGE_TAG}}"
+      IMAGE_NAME:
+        sh: kubectl get deployment {{.DEPLOYMENT_NAME}} -n {{.DEPLOYMENT_NAMESPACE}} -o jsonpath='{.spec.template.spec.containers[0].image}'
     cmds:
-      - echo "Building image with tag {{.IMAGE_TAG}} using {{.CONTAINER_RUNTIME}}"
+      - echo "Building image {{.IMAGE_NAME}} using {{.CONTAINER_RUNTIME}}"
       - "{{.CONTAINER_RUNTIME}} build -t {{.IMAGE_NAME}} ."
       - |
         if [ "{{.CONTAINER_RUNTIME}}" = "podman" ]; then

@@ -8,7 +8,7 @@ import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { FieldAnalyzerService } from 'services/schema/field-analyzer.service';
 import { SchemaService } from 'services/schema/schema.service';
 import { selectContext } from 'state/context/context.selectors';
-import { IntrospectionType } from 'models/index';
+import { IntrospectionType, ResourceDefinition, ResourceNodeContext } from 'models/index';
 
 @Injectable()
 export class SchemaEffects {
@@ -33,57 +33,39 @@ export class SchemaEffects {
         // Use readFromParentKcpPath from resource definition config
         const readFromParentKcpPath = resourceDefinition.readFromParentKcpPath ?? false;
 
-        console.log('[SchemaEffects] Introspecting type:', resourceDefinition.kind);
+        // Build versioned type name to get correct nested types
+        // Format: {Group}{Version}{Kind} e.g., ApisKcpIoV1alpha2APIBinding
+        const versionedTypeName = this.buildVersionedTypeName(resourceDefinition);
+        console.log('[SchemaEffects] Introspecting versioned type:', versionedTypeName);
         console.log('[SchemaEffects] Using GraphQL URL:', context.portalContext?.crdGatewayApiUrl);
         console.log('[SchemaEffects] readFromParentKcpPath:', readFromParentKcpPath);
 
         return this.schemaService
-          .introspectType(resourceDefinition.kind, context, readFromParentKcpPath)
+          .introspectType(versionedTypeName, context, readFromParentKcpPath)
           .pipe(
             switchMap((resourceType) => {
-              console.log('[SchemaEffects] Introspection result for', resourceDefinition.kind, ':', resourceType);
+              console.log('[SchemaEffects] Introspection result for', versionedTypeName, ':', resourceType);
 
               if (!resourceType) {
-                return of(
-                  loadSchemaFailure({
-                    error: `Type ${resourceDefinition.kind} not found in schema`,
-                  })
-                );
+                // Fallback to unversioned type name for core API resources
+                console.log('[SchemaEffects] Versioned type not found, trying:', resourceDefinition.kind);
+                return this.schemaService
+                  .introspectType(resourceDefinition.kind, context, readFromParentKcpPath)
+                  .pipe(
+                    switchMap((fallbackType) => {
+                      if (!fallbackType) {
+                        return of(
+                          loadSchemaFailure({
+                            error: `Type ${resourceDefinition.kind} not found in schema`,
+                          })
+                        );
+                      }
+                      return this.processResourceType(fallbackType, resourceDefinition, context, readFromParentKcpPath);
+                    })
+                  );
               }
 
-              // Extract nested type names from fields
-              const nestedTypeNames = this.extractNestedTypeNames(resourceType, resourceDefinition.kind);
-              console.log('[SchemaEffects] Nested type names to introspect:', nestedTypeNames);
-
-              // Introspect input type and all nested types
-              const queries: Record<string, Observable<IntrospectionType | null>> = {
-                inputType: this.schemaService.introspectType(`${resourceDefinition.kind}Input`, context, readFromParentKcpPath),
-              };
-              nestedTypeNames.forEach((name) => {
-                queries[name] = this.schemaService.introspectType(name, context, readFromParentKcpPath);
-              });
-
-              return forkJoin(queries).pipe(
-                map((results) => {
-                  console.log('[SchemaEffects] All introspection results:', results);
-                  const inputType = results['inputType'] as IntrospectionType | null;
-                  const nestedResults = { ...results };
-                  delete nestedResults['inputType'];
-
-                  // Enrich resourceType with nested type field info
-                  const enrichedResourceType = this.enrichResourceType(resourceType, nestedResults as Record<string, IntrospectionType | null>);
-                  console.log('[SchemaEffects] Enriched resource type:', enrichedResourceType);
-
-                  const fieldAnalysis = this.fieldAnalyzer.analyzeFields(enrichedResourceType);
-                  console.log('[SchemaEffects] Field analysis:', fieldAnalysis);
-
-                  return loadSchemaSuccess({
-                    resourceType: enrichedResourceType,
-                    inputType,
-                    fieldAnalysis,
-                  });
-                })
-              );
+              return this.processResourceType(resourceType, resourceDefinition, context, readFromParentKcpPath);
             }),
             catchError((error) => {
               console.error('[SchemaEffects] Error loading schema:', error);
@@ -94,7 +76,69 @@ export class SchemaEffects {
     )
   );
 
-  private extractNestedTypeNames(resourceType: IntrospectionType, _kind: string): string[] {
+  private processResourceType(
+    resourceType: IntrospectionType,
+    resourceDefinition: ResourceDefinition,
+    context: ResourceNodeContext,
+    readFromParentKcpPath: boolean
+  ): Observable<ReturnType<typeof loadSchemaSuccess> | ReturnType<typeof loadSchemaFailure>> {
+    // Extract nested type names from fields
+    const nestedTypeNames = this.extractNestedTypeNames(resourceType);
+    console.log('[SchemaEffects] Nested type names to introspect:', nestedTypeNames);
+
+    // Introspect input type and all nested types
+    const versionedInputTypeName = this.buildVersionedTypeName(resourceDefinition) + 'Input';
+    const queries: Record<string, Observable<IntrospectionType | null>> = {
+      inputType: this.schemaService.introspectType(versionedInputTypeName, context, readFromParentKcpPath),
+    };
+    nestedTypeNames.forEach((name) => {
+      queries[name] = this.schemaService.introspectType(name, context, readFromParentKcpPath);
+    });
+
+    return forkJoin(queries).pipe(
+      map((results) => {
+        console.log('[SchemaEffects] All introspection results:', results);
+        const inputType = results['inputType'] as IntrospectionType | null;
+        const nestedResults = { ...results };
+        delete nestedResults['inputType'];
+
+        // Enrich resourceType with nested type field info
+        const enrichedResourceType = this.enrichResourceType(resourceType, nestedResults as Record<string, IntrospectionType | null>);
+        console.log('[SchemaEffects] Enriched resource type:', enrichedResourceType);
+
+        const fieldAnalysis = this.fieldAnalyzer.analyzeFields(enrichedResourceType);
+        console.log('[SchemaEffects] Field analysis:', fieldAnalysis);
+
+        return loadSchemaSuccess({
+          resourceType: enrichedResourceType,
+          inputType,
+          fieldAnalysis,
+        });
+      })
+    );
+  }
+
+  private buildVersionedTypeName(resourceDefinition: ResourceDefinition): string {
+    const { group, version, kind } = resourceDefinition;
+
+    // For core API resources (no group), just use the kind
+    if (!group) {
+      return kind;
+    }
+
+    // Convert group to PascalCase: apis.kcp.io -> ApisKcpIo
+    const groupPascal = group
+      .split(/[.\-]/)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join('');
+
+    // Version is typically like v1alpha2 -> V1alpha2
+    const versionPascal = version.charAt(0).toUpperCase() + version.slice(1);
+
+    return `${groupPascal}${versionPascal}${kind}`;
+  }
+
+  private extractNestedTypeNames(resourceType: IntrospectionType): string[] {
     const typeNames = new Set<string>();
     const fields = resourceType.fields ?? [];
 
