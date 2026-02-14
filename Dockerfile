@@ -13,17 +13,13 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built Angular app
-COPY --from=builder /app/dist/generic-resource-ui/browser /usr/share/nginx/html/ui/generic-resource
+COPY --from=builder /app/dist /usr/share/nginx/html/ui/generic-resource
 
-# Add non-root user for security
-RUN addgroup -g 101 -S nginx \
-    && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
-    && chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html \
-    && chmod -R 755 /usr/share/nginx/html
-
-# Ensure nginx can write to required directories
-RUN touch /var/run/nginx.pid \
-    && chown -R nginx:nginx /var/run/nginx.pid
+# Set permissions for nginx user (already exists in nginx:alpine)
+RUN chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html \
+    && chmod -R 755 /usr/share/nginx/html \
+    && touch /var/run/nginx.pid \
+    && chown nginx:nginx /var/run/nginx.pid
 
 USER nginx
 
