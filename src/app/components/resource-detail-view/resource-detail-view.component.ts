@@ -148,26 +148,30 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
                 </span>
               </fd-facet>
 
-              <fd-facet type="custom" class="labels-facet">
-                <div class="facet-labels-section">
-                  <label fd-form-label [colon]="true">Labels</label>
-                  <app-labels-display
-                    [labels]="resource()!.metadata.labels"
-                    [maxLabels]="5"
-                  ></app-labels-display>
-                </div>
-              </fd-facet>
+              @if (hasLabels()) {
+                <fd-facet type="custom" class="labels-facet">
+                  <div class="facet-labels-section">
+                    <label fd-form-label [colon]="true">Labels</label>
+                    <app-labels-display
+                      [labels]="resource()!.metadata.labels"
+                      [maxLabels]="5"
+                    ></app-labels-display>
+                  </div>
+                </fd-facet>
+              }
 
-              <fd-facet type="custom" class="labels-facet">
-                <div class="facet-labels-section">
-                  <label fd-form-label [colon]="true">Annotations</label>
-                  <app-labels-display
-                    [labels]="resource()!.metadata.annotations"
-                    [maxLabels]="3"
-                    [hideAnnotations]="true"
-                  ></app-labels-display>
-                </div>
-              </fd-facet>
+              @if (hasAnnotations()) {
+                <fd-facet type="custom" class="labels-facet">
+                  <div class="facet-labels-section">
+                    <label fd-form-label [colon]="true">Annotations</label>
+                    <app-labels-display
+                      [labels]="resource()!.metadata.annotations"
+                      [maxLabels]="3"
+                      [hideAnnotations]="true"
+                    ></app-labels-display>
+                  </div>
+                </fd-facet>
+              }
             </fd-facet-group>
           </fdp-dynamic-page-header>
           <!-- eslint-enable @angular-eslint/template/label-has-associated-control -->
@@ -284,6 +288,16 @@ export class ResourceDetailViewComponent implements OnInit {
   protected readonly subtitle = computed(() => {
     const def = this.resourceDefinition();
     return def ? `${def.kind} details` : 'Resource details';
+  });
+
+  protected readonly hasLabels = computed(() => {
+    const res = this.resource();
+    return res?.metadata?.labels && Object.keys(res.metadata.labels).length > 0;
+  });
+
+  protected readonly hasAnnotations = computed(() => {
+    const res = this.resource();
+    return res?.metadata?.annotations && Object.keys(res.metadata.annotations).length > 0;
   });
 
   ngOnInit(): void {

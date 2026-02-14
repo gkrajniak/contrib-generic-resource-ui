@@ -1,5 +1,26 @@
 import { gql } from 'apollo-angular';
 
+const TYPE_FIELDS_FRAGMENT = `
+  name
+  kind
+  fields {
+    name
+    description
+    type {
+      name
+      kind
+      ofType {
+        name
+        kind
+        ofType {
+          name
+          kind
+        }
+      }
+    }
+  }
+`;
+
 export const INTROSPECT_TYPE_QUERY = gql`
   query IntrospectType($typeName: String!) {
     __type(name: $typeName) {
@@ -9,18 +30,12 @@ export const INTROSPECT_TYPE_QUERY = gql`
         name
         description
         type {
-          name
-          kind
+          ${TYPE_FIELDS_FRAGMENT}
           ofType {
-            name
-            kind
+            ${TYPE_FIELDS_FRAGMENT}
             ofType {
               name
               kind
-              ofType {
-                name
-                kind
-              }
             }
           }
         }

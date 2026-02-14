@@ -1,0 +1,22 @@
+{
+  "resourceDefinition": {
+    "group": "core.platform-mesh.io",
+    "version": "v1alpha1",
+    "kind": "AccountInfo",
+    "plural": "AccountInfoes",
+    "singular": "AccountInfo",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "https://localhost/api/kubernetes-graphql-gateway/root:platform-mesh/graphql"
+  },
+  "token": "REPLACE_WITH_TOKEN",
+  "resourceId": "account",
+  "ui": {
+    "title": "Account Info",
+    "showCreateButton": false,
+    "showDeleteButton": false,
+    "showEditButton": false,
+    "showYamlPanel": true
+  }
+}

@@ -2,6 +2,7 @@ import { ApolloFactory } from './apollo-factory';
 import { Injectable, inject } from '@angular/core';
 import {
   FieldAnalysis,
+  NestedFieldInfo,
   Resource,
   ResourceDefinition,
   ResourceListResult,
@@ -27,7 +28,7 @@ export class GenericResourceService {
     const fieldsSelection = this.buildListFieldsSelection(fieldAnalysis);
     const group = this.normalizeGroupName(resourceDefinition.group);
     const version = resourceDefinition.version;
-    const kind = this.capitalize(resourceDefinition.plural);
+    const kind = this.ensureCapitalized(resourceDefinition.plural);
     const isNamespaced = resourceDefinition.scope === 'Namespaced';
 
     const variables: Record<string, any> = {};
@@ -356,13 +357,22 @@ export class GenericResourceService {
       .slice(0, 3)
       .map((f) => f.name);
 
+    const nestedSpecSelection = this.buildNestedFieldSelection(
+      fieldAnalysis.nestedSpecFields.slice(0, 2),
+      1
+    );
+
     let selection = `metadata { ${metadataFields.join(' ')} }`;
 
-    if (specFields.length > 0) {
-      selection += `\nspec { ${specFields.join(' ')} }`;
+    const specSelections = [
+      ...specFields,
+      nestedSpecSelection,
+    ].filter(Boolean);
+
+    if (specSelections.length > 0) {
+      selection += `\nspec { ${specSelections.join(' ')} }`;
     }
 
-    // Include status fields and conditions for ready status detection
     if (statusFields.length > 0 || fieldAnalysis.conditionsField) {
       let statusSelection = statusFields.join(' ');
       if (fieldAnalysis.conditionsField) {
@@ -396,14 +406,33 @@ export class GenericResourceService {
       .filter((f) => f.isScalar)
       .map((f) => f.name);
 
+    const nestedSpecSelection = this.buildNestedFieldSelection(
+      fieldAnalysis.nestedSpecFields,
+      3
+    );
+    const nestedStatusSelection = this.buildNestedFieldSelection(
+      fieldAnalysis.nestedStatusFields,
+      3
+    );
+
     let selection = `metadata { ${metadataFields.join(' ')} }`;
 
-    if (specFields.length > 0) {
-      selection += `\nspec { ${specFields.join(' ')} }`;
+    const specSelections = [
+      ...specFields,
+      nestedSpecSelection,
+    ].filter(Boolean);
+
+    if (specSelections.length > 0) {
+      selection += `\nspec { ${specSelections.join(' ')} }`;
     }
 
-    if (statusFields.length > 0 || fieldAnalysis.conditionsField) {
-      let statusSelection = statusFields.join(' ');
+    const statusSelections = [
+      ...statusFields,
+      nestedStatusSelection,
+    ].filter(Boolean);
+
+    if (statusSelections.length > 0 || fieldAnalysis.conditionsField) {
+      let statusSelection = statusSelections.join(' ');
       if (fieldAnalysis.conditionsField) {
         statusSelection += ' conditions { type status reason message lastTransitionTime }';
       }
@@ -416,11 +445,55 @@ export class GenericResourceService {
   }
 
 
+  private buildNestedFieldSelection(
+    nestedFields: NestedFieldInfo[],
+    maxDepth: number
+  ): string {
+    if (!nestedFields || nestedFields.length === 0) {
+      return '';
+    }
+
+    return nestedFields
+      .map((nested) => this.buildNestedFieldSelectionRecursive(nested, 0, maxDepth))
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  private buildNestedFieldSelectionRecursive(
+    nestedInfo: NestedFieldInfo,
+    currentDepth: number,
+    maxDepth: number
+  ): string {
+    if (currentDepth >= maxDepth) {
+      return '';
+    }
+
+    const fieldName = nestedInfo.field.name;
+    const scalarNames = nestedInfo.scalarChildren.map((f) => f.name);
+
+    const nestedSelections = nestedInfo.nestedChildren
+      .map((child) =>
+        this.buildNestedFieldSelectionRecursive(child, currentDepth + 1, maxDepth)
+      )
+      .filter(Boolean);
+
+    const allSelections = [...scalarNames, ...nestedSelections];
+
+    if (allSelections.length === 0) {
+      return '';
+    }
+
+    return `${fieldName} { ${allSelections.join(' ')} }`;
+  }
+
   private normalizeGroupName(group: string): string {
     return group.replace(/[.\-]/g, '_');
   }
 
-  private capitalize(str: string): string {
+  private ensureCapitalized(str: string): string {
+    if (str.charAt(0) === str.charAt(0).toUpperCase()) {
+      return str;
+    }
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 

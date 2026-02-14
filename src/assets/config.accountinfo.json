@@ -1,0 +1,33 @@
+{
+  "name": "accounts",
+  "luigiConfigFragment": {
+    "data": {
+      "nodes": [
+        {
+          "entityType": "workspaces.workspace",
+          "pathSegment": "accountinfo",
+          "label": "Account Info",
+          "keepSelectedForChildren": true,
+          "icon": "bbyd-dashboard",
+          "order": 100,
+          "category": "platform-mesh",
+          "loadingIndicator": {
+            "enabled": false
+          },
+          "url": "https://localhost:4200/ui/generic-resource/#/account",
+          "context": {
+            "resourceDefinition": {
+              "group": "core.platform-mesh.io",
+              "version": "v1alpha1",
+              "kind": "AccountInfo",
+              "plural": "AccountInfoes",
+              "singular": "AccountInfo",
+              "scope": "Cluster"
+            },
+            "resourceId": "account"
+          }
+        }
+      ]
+    }
+  }
+}

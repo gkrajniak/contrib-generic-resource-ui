@@ -1,0 +1,21 @@
+{
+  "resourceDefinition": {
+    "group": "core.platform-mesh.io",
+    "version": "v1alpha1",
+    "kind": "Account",
+    "plural": "accounts",
+    "singular": "account",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "https://sap.portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:sap:workspaces:tobias-test-home/graphql"
+  },
+  "token": "REPLACE_WITH_TOKEN",
+  "ui": {
+    "title": "Accounts (Local)",
+    "showCreateButton": true,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

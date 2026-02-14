@@ -5,6 +5,15 @@ export interface PortalContext {
   kcpWorkspaceUrl?: string;
 }
 
+export interface UiConfig {
+  title?: string;
+  showCreateButton?: boolean;
+  showDeleteButton?: boolean;
+  showEditButton?: boolean;
+  showYamlPanel?: boolean;
+  defaultPageSize?: number;
+}
+
 export interface ResourceNodeContext {
   token: string;
   resourceDefinition: ResourceDefinition;
@@ -14,6 +23,7 @@ export interface ResourceNodeContext {
   resourceId?: string;
   entityType?: string;
   entityName?: string;
+  ui?: UiConfig;
 }
 
 export interface NodeContext extends Record<string, any> {

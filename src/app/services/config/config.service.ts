@@ -73,6 +73,7 @@ export class ConfigService {
       portalContext: config.portalContext,
       namespaceId: config.namespaceId,
       accountId: config.accountId,
+      ui: config.ui,
     };
   }
 

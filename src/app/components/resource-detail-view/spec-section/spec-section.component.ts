@@ -12,10 +12,10 @@ import {
   LayoutPanelTitleDirective,
 } from '@fundamental-ngx/core/layout-panel';
 import { IconComponent } from '@fundamental-ngx/core/icon';
-import { DetailFieldType, FieldAnalysis, Resource } from 'models/index';
+import { DetailFieldType, FieldAnalysis, NestedFieldInfo, Resource } from 'models/index';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
+import { NestedObjectCardComponent } from 'components/shared/nested-object-card/nested-object-card.component';
 import { humanizeFieldName } from 'utils/humanize';
-import * as YAML from 'yaml';
 
 interface ScalarField {
   key: string;
@@ -25,12 +25,10 @@ interface ScalarField {
   description?: string;
 }
 
-interface ComplexField {
+interface NestedObjectEntry {
   key: string;
-  label: string;
-  value: any;
-  yamlValue: string;
-  description?: string;
+  fieldInfo: NestedFieldInfo;
+  data: Record<string, any>;
 }
 
 @Component({
@@ -43,6 +41,7 @@ interface ComplexField {
     LayoutPanelTitleDirective,
     IconComponent,
     ValueCellComponent,
+    NestedObjectCardComponent,
   ],
   template: `
     @if (hasSpec()) {
@@ -54,42 +53,39 @@ interface ComplexField {
         </fd-layout-panel-header>
 
         <fd-layout-panel-body>
-          <div class="spec-grid">
-            @for (field of scalarFields(); track field.key) {
-              <div class="spec-item">
-                <div class="spec-label">
-                  {{ field.label }}
-                  @if (field.description) {
-                    <fd-icon
-                      glyph="hint"
-                      class="info-icon"
-                      [title]="field.description"
-                    ></fd-icon>
-                  }
+          @if (scalarFields().length > 0) {
+            <div class="spec-grid">
+              @for (field of scalarFields(); track field.key) {
+                <div class="spec-item">
+                  <div class="spec-label">
+                    {{ field.label }}
+                    @if (field.description) {
+                      <fd-icon
+                        glyph="hint"
+                        class="info-icon"
+                        [title]="field.description"
+                      ></fd-icon>
+                    }
+                  </div>
+                  <div class="spec-value">
+                    <app-value-cell
+                      [value]="field.value"
+                      [type]="field.type"
+                    ></app-value-cell>
+                  </div>
                 </div>
-                <div class="spec-value">
-                  <app-value-cell
-                    [value]="field.value"
-                    [type]="field.type"
-                  ></app-value-cell>
-                </div>
-              </div>
-            }
-          </div>
+              }
+            </div>
+          }
 
-          @for (field of complexFields(); track field.key) {
-            <div class="complex-field">
-              <div class="spec-label">
-                {{ field.label }}
-                @if (field.description) {
-                  <fd-icon
-                    glyph="hint"
-                    class="info-icon"
-                    [title]="field.description"
-                  ></fd-icon>
-                }
-              </div>
-              <pre class="yaml-content">{{ field.yamlValue }}</pre>
+          @if (nestedObjectFields().length > 0) {
+            <div class="nested-objects">
+              @for (nested of nestedObjectFields(); track nested.key) {
+                <app-nested-object-card
+                  [fieldInfo]="nested.fieldInfo"
+                  [data]="nested.data"
+                ></app-nested-object-card>
+              }
             </div>
           }
         </fd-layout-panel-body>
@@ -132,19 +128,14 @@ interface ComplexField {
         color: var(--sapTextColor);
         word-break: break-word;
       }
-      .complex-field {
-        margin-bottom: 1rem;
+      .spec-grid + .nested-objects {
+        margin-top: 1.5rem;
       }
-      .yaml-content {
-        background: var(--sapBackgroundColor);
-        padding: 0.75rem;
-        border-radius: 4px;
-        font-size: 0.8125rem;
-        font-family: monospace;
-        overflow-x: auto;
-        max-height: 200px;
-        margin: 0.5rem 0 0 0;
-        border: 1px solid var(--sapGroup_TitleBorderColor);
+      .nested-objects {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
       }
     `,
   ],
@@ -159,6 +150,8 @@ export class SpecSectionComponent {
     return spec && Object.keys(spec).length > 0;
   });
 
+  private readonly HIDDEN_FIELDS = ['__typename', '_typename', 'typeName'];
+
   protected readonly scalarFields = computed((): ScalarField[] => {
     const spec = this.resource().spec;
     const analysis = this.fieldAnalysis();
@@ -171,6 +164,7 @@ export class SpecSectionComponent {
     const scalarFieldNames = scalarSchemaFields.map((f) => f.name);
 
     return Object.entries(spec)
+      .filter(([key]) => !this.HIDDEN_FIELDS.includes(key))
       .filter(([key]) => scalarFieldNames.includes(key) || this.isScalarValue(spec[key]))
       .map(([key, value]) => {
         const schemaField = scalarSchemaFields.find((f) => f.name === key);
@@ -184,32 +178,21 @@ export class SpecSectionComponent {
       });
   });
 
-  protected readonly complexFields = computed((): ComplexField[] => {
+  protected readonly nestedObjectFields = computed((): NestedObjectEntry[] => {
     const spec = this.resource().spec;
     const analysis = this.fieldAnalysis();
 
-    if (!spec) {
+    if (!spec || !analysis?.nestedSpecFields) {
       return [];
     }
 
-    const complexSchemaFields = analysis?.complexSpecFields ?? [];
-    const complexFieldNames = complexSchemaFields.map((f) => f.name);
-
-    return Object.entries(spec)
-      .filter(
-        ([key, value]) =>
-          complexFieldNames.includes(key) || !this.isScalarValue(value)
-      )
-      .map(([key, value]) => {
-        const schemaField = complexSchemaFields.find((f) => f.name === key);
-        return {
-          key,
-          label: humanizeFieldName(key),
-          value,
-          yamlValue: YAML.stringify(value, { indent: 2 }),
-          description: schemaField?.description,
-        };
-      });
+    return analysis.nestedSpecFields
+      .filter((nested) => spec[nested.field.name])
+      .map((nested) => ({
+        key: nested.field.name,
+        fieldInfo: nested,
+        data: spec[nested.field.name] ?? {},
+      }));
   });
 
   private isScalarValue(value: any): boolean {

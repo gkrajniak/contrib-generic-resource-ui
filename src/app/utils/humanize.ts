@@ -1,12 +1,23 @@
+// Known acronyms that should stay uppercase
+const KNOWN_ACRONYMS = ['OIDC', 'URL', 'ID', 'CA', 'DNS', 'API', 'UI', 'UID', 'FGA', 'SSO', 'SAML', 'JWT', 'TLS', 'SSL', 'HTTP', 'HTTPS'];
+
 export function humanizeFieldName(fieldName: string): string {
   const withSpaces = fieldName.replace(/([A-Z])/g, ' $1').trim();
 
   const withoutUnderscores = withSpaces.replace(/_/g, ' ');
 
-  return withoutUnderscores
+  let result = withoutUnderscores
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
+
+  // Fix known acronyms
+  for (const acronym of KNOWN_ACRONYMS) {
+    const regex = new RegExp(`\\b${acronym}\\b`, 'gi');
+    result = result.replace(regex, acronym);
+  }
+
+  return result;
 }
 
 export function toTitleCase(str: string): string {

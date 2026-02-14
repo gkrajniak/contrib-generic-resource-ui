@@ -65,3 +65,13 @@ export const selectResourceContext = createSelector(
     };
   }
 );
+
+export const selectUiConfig = createSelector(
+  selectContext,
+  (context) => context?.ui
+);
+
+export const selectUiTitle = createSelector(
+  selectContext,
+  (context) => context?.ui?.title
+);

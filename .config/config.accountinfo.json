@@ -1,0 +1,21 @@
+{
+  "resourceDefinition": {
+    "group": "core.platform-mesh.io",
+    "version": "v1alpha1",
+    "kind": "AccountInfo",
+    "plural": "AccountInfoes",
+    "singular": "AccountInfo",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "https://sap.portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:sap:workspaces:tobias-test-home/graphql"
+  },
+  "resourceId": "account",
+  "ui": {
+    "title": "Account Info",
+    "showCreateButton": false,
+    "showDeleteButton": false,
+    "showEditButton": false,
+    "showYamlPanel": true
+  }
+}

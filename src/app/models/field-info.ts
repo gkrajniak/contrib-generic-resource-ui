@@ -1,5 +1,14 @@
 import { SchemaField } from './schema-types';
 
+export interface NestedFieldInfo {
+  field: SchemaField;
+  scalarChildren: SchemaField[];
+  nestedChildren: NestedFieldInfo[];
+  depth: number;
+  displayTitle: string;
+  icon: string;
+}
+
 export interface FieldAnalysis {
   coreFields: SchemaField[];
   scalarSpecFields: SchemaField[];
@@ -9,6 +18,8 @@ export interface FieldAnalysis {
   requiredInputFields: SchemaField[];
   allSpecFields: SchemaField[];
   allStatusFields: SchemaField[];
+  nestedSpecFields: NestedFieldInfo[];
+  nestedStatusFields: NestedFieldInfo[];
 }
 
 export interface FieldCategory {

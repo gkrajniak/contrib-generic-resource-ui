@@ -20,7 +20,8 @@ import {
 import { Store } from '@ngrx/store';
 import { ContextService } from 'services/context/context.service';
 import { LuigiClientService } from 'services/luigi/luigi-client.service';
-import { selectResourceDefinition } from 'state/context/context.selectors';
+import { selectResourceDefinition, selectUiTitle } from 'state/context/context.selectors';
+import { humanizeFieldName } from 'utils/humanize';
 import {
   selectResources,
   selectResourcesLoading,
@@ -110,14 +111,23 @@ export class ResourceListViewComponent implements OnInit {
     { initialValue: false }
   );
 
+  protected readonly uiTitle = toSignal(this.store.select(selectUiTitle));
+
   protected readonly loading = () =>
     this.resourcesLoading() || this.schemaLoading();
 
   protected readonly title = computed(() => {
+    // Prefer UI config title if set
+    const configTitle = this.uiTitle();
+    if (configTitle) {
+      return configTitle;
+    }
+    // Fallback to humanized kind name (plural)
     const def = this.resourceDefinition();
-    return def
-      ? `${def.plural.charAt(0).toUpperCase()}${def.plural.slice(1)}`
-      : 'Resources';
+    if (def) {
+      return humanizeFieldName(def.kind) + 's';
+    }
+    return 'Resources';
   });
 
   protected readonly filteredResources = () => {

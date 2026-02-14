@@ -1,18 +1,22 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   CORE_METADATA_FIELDS,
   FieldAnalysis,
   IntrospectionField,
   IntrospectionType,
+  NestedFieldInfo,
   SCALAR_TYPES,
   SchemaField,
-  TypeKind,
 } from 'models/index';
+import { IconMapperService } from 'services/icon';
+import { humanizeFieldName } from 'utils/humanize';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FieldAnalyzerService {
+  private iconMapper = inject(IconMapperService);
+
   analyzeFields(resourceType: IntrospectionType): FieldAnalysis {
     const fields = resourceType.fields ?? [];
     const metadataType = this.findFieldType(fields, 'metadata');
@@ -26,6 +30,11 @@ export class FieldAnalyzerService {
       this.categorizeStatusFields(statusType);
     const requiredInputFields: SchemaField[] = [];
 
+    const nestedSpecFields = this.analyzeNestedFields(complexSpecFields);
+    const nestedStatusFields = this.analyzeNestedFields(
+      allStatusFields.filter((f) => !f.isScalar && f.name !== 'conditions')
+    );
+
     return {
       coreFields,
       scalarSpecFields,
@@ -35,6 +44,8 @@ export class FieldAnalyzerService {
       requiredInputFields,
       allSpecFields,
       allStatusFields,
+      nestedSpecFields,
+      nestedStatusFields,
     };
   }
 
@@ -172,5 +183,54 @@ export class FieldAnalyzerService {
       type.kind === 'SCALAR' ||
       SCALAR_TYPES.includes(type.name as (typeof SCALAR_TYPES)[number])
     );
+  }
+
+  analyzeNestedFields(fields: SchemaField[], maxDepth = 3, currentDepth = 0): NestedFieldInfo[] {
+    if (currentDepth >= maxDepth) {
+      return [];
+    }
+
+    return fields
+      .filter((f) => !f.isScalar && f.underlyingType?.fields)
+      .map((field) => this.buildNestedFieldInfo(field, maxDepth, currentDepth));
+  }
+
+  private buildNestedFieldInfo(
+    field: SchemaField,
+    maxDepth: number,
+    currentDepth: number
+  ): NestedFieldInfo {
+    const nestedType = field.underlyingType;
+    const nestedFields = nestedType?.fields ?? [];
+
+    const childSchemaFields = nestedFields.map((f) =>
+      this.convertToSchemaField(f.name, f.type, f.description)
+    );
+
+    const scalarChildren = childSchemaFields.filter((f) => f.isScalar);
+    const complexChildren = childSchemaFields.filter(
+      (f) => !f.isScalar && f.underlyingType?.fields
+    );
+
+    const nestedChildren =
+      currentDepth + 1 < maxDepth
+        ? this.analyzeNestedFields(complexChildren, maxDepth, currentDepth + 1)
+        : [];
+
+    const displayTitle = field.description || humanizeFieldName(field.name);
+    const icon = this.iconMapper.getIconForField(
+      field.name,
+      field.typeName,
+      field.description
+    );
+
+    return {
+      field,
+      scalarChildren,
+      nestedChildren,
+      depth: currentDepth,
+      displayTitle,
+      icon,
+    };
   }
 }
