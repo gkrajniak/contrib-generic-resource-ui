@@ -20,6 +20,8 @@ export interface FieldAnalysis {
   allStatusFields: SchemaField[];
   nestedSpecFields: NestedFieldInfo[];
   nestedStatusFields: NestedFieldInfo[];
+  // Root-level fields (for ConfigMap, Secret, etc.)
+  rootLevelFields: SchemaField[];
 }
 
 export interface FieldCategory {

@@ -1,5 +1,6 @@
 import { SpecSectionComponent } from './spec-section/spec-section.component';
 import { StatusSectionComponent } from './status-section/status-section.component';
+import { DataSectionComponent } from './data-section/data-section.component';
 import { YamlPanelComponent } from './yaml-panel/yaml-panel.component';
 import { ReadyStatusBadgeComponent } from 'components/shared/ready-status-badge/ready-status-badge.component';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
@@ -50,6 +51,7 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
   imports: [
     SpecSectionComponent,
     StatusSectionComponent,
+    DataSectionComponent,
     YamlPanelComponent,
     BusyIndicatorComponent,
     ButtonComponent,
@@ -232,6 +234,10 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
                 [resource]="resource()!"
                 [fieldAnalysis]="fieldAnalysis()"
               ></app-spec-section>
+
+              <app-data-section
+                [resource]="resource()!"
+              ></app-data-section>
 
               <app-status-section
                 [resource]="resource()!"

@@ -35,6 +35,9 @@ export class FieldAnalyzerService {
       allStatusFields.filter((f) => !f.isScalar && f.name !== 'conditions')
     );
 
+    // Extract root-level fields (for ConfigMap, Secret, etc.)
+    const rootLevelFields = this.extractRootLevelFields(fields);
+
     return {
       coreFields,
       scalarSpecFields,
@@ -46,6 +49,7 @@ export class FieldAnalyzerService {
       allStatusFields,
       nestedSpecFields,
       nestedStatusFields,
+      rootLevelFields,
     };
   }
 
@@ -128,6 +132,18 @@ export class FieldAnalyzerService {
     );
 
     return { statusFields, conditionsField, allStatusFields };
+  }
+
+  /**
+   * Extract root-level fields that are not metadata, spec, status, apiVersion, or kind.
+   * These are fields like ConfigMap's `data`, `binaryData`, `immutable`, etc.
+   */
+  private extractRootLevelFields(fields: IntrospectionField[]): SchemaField[] {
+    const excludedFields = ['metadata', 'spec', 'status', 'apiVersion', 'kind', '__typename'];
+
+    return fields
+      .filter((f) => !excludedFields.includes(f.name))
+      .map((f) => this.convertToSchemaField(f.name, f.type, f.description));
   }
 
   private convertToSchemaField(
