@@ -9,7 +9,7 @@ import { Store } from '@ngrx/store';
 import deepmerge from 'deepmerge';
 import { NodeContext, ResourceNodeContext } from 'models/index';
 import { Observable, map, timer, take } from 'rxjs';
-import { contextInitialized, contextUpdated } from 'state/context/context.actions';
+import { contextInitialized, contextUpdated, setNamespace } from 'state/context/context.actions';
 
 @Injectable({
   providedIn: 'root',
@@ -68,6 +68,14 @@ export class ContextService {
       next: (config) => {
         console.log('[ContextService] Config loaded:', config);
         const resourceContext = this.configService.toResourceNodeContext(config);
+
+        // Check for namespace in URL query params
+        const urlNamespace = this.getNamespaceFromUrl();
+        if (urlNamespace) {
+          resourceContext.namespaceId = urlNamespace;
+          console.log('[ContextService] Using namespace from URL:', urlNamespace);
+        }
+
         console.log('[ContextService] Config resource context:', resourceContext);
         this.store.dispatch(contextInitialized({ context: resourceContext }));
         this.initialized = true;
@@ -110,16 +118,52 @@ export class ContextService {
     // Fix stale portalContext.crdGatewayApiUrl by deriving it from kcpPath
     const portalContext = this.fixGatewayUrl(context);
 
+    // Get namespace from various sources (priority order):
+    // 1. Luigi nodeParams (from withParams navigation)
+    // 2. Context namespaceId (from content config)
+    // 3. URL query params (fallback)
+    const nodeParams = context['nodeParams'] as Record<string, string> | undefined;
+    const namespaceId = nodeParams?.['namespace'] || context.namespaceId || this.getNamespaceFromUrl();
+
+    if (nodeParams?.['namespace']) {
+      console.log('[ContextService] Using namespace from nodeParams:', nodeParams['namespace']);
+    }
+
     return {
       token: context.token,
       resourceDefinition: context.resourceDefinition!,
       portalContext,
-      namespaceId: context.namespaceId,
+      namespaceId: namespaceId || undefined,
       accountId: context.accountId,
       resourceId: context['resourceId'] || context['core_platform-mesh_io_accountId'],
       entityType: context.entityType,
       entityName: context.entityName,
     };
+  }
+
+  private getNamespaceFromUrl(): string | null {
+    // Check hash-based query params (e.g., /#/?namespace=default)
+    const hash = window.location.hash;
+    const hashQueryIndex = hash.indexOf('?');
+    if (hashQueryIndex !== -1) {
+      const hashParams = new URLSearchParams(hash.substring(hashQueryIndex + 1));
+      const ns = hashParams.get('namespace');
+      if (ns) {
+        return ns;
+      }
+    }
+
+    // Check regular query params (e.g., ?namespace=default)
+    const params = new URLSearchParams(window.location.search);
+    return params.get('namespace');
+  }
+
+  updateNamespaceFromUrl(): void {
+    const namespace = this.getNamespaceFromUrl();
+    if (namespace) {
+      console.log('[ContextService] Updating namespace from URL:', namespace);
+      this.store.dispatch(setNamespace({ namespaceId: namespace }));
+    }
   }
 
   private fixGatewayUrl(context: NodeContext): NodeContext['portalContext'] {

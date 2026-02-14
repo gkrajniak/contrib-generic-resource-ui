@@ -19,6 +19,7 @@ import {
   updateResourceFailure,
   updateResourceSuccess,
 } from './resources.actions';
+import { loadSchema } from '../schema/schema.actions';
 import { Resource } from 'models/index';
 import { createReducer, on } from '@ngrx/store';
 
@@ -142,5 +143,7 @@ export const resourcesReducer = createReducer(
     ...state,
     selectedResource: null,
     selectedResourceName: null,
-  }))
+  })),
+  // Clear resources when a new schema is being loaded (context changed)
+  on(loadSchema, (): ResourcesState => initialState)
 );

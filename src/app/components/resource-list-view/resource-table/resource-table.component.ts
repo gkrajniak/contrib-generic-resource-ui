@@ -158,7 +158,10 @@ export class ResourceTableComponent {
   }
 
   protected onRowClick(resource: Resource): void {
-    this.navigationService.navigateToResource(resource.metadata.name);
+    this.navigationService.navigateToResource(
+      resource.metadata.name,
+      resource.metadata.namespace
+    );
   }
 
   protected onEdit(resource: Resource): void {

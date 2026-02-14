@@ -27,6 +27,7 @@ export class GenericResourceService {
   ): Observable<Resource[]> {
     const fieldsSelection = this.buildListFieldsSelection(fieldAnalysis);
     const group = this.normalizeGroupName(resourceDefinition.group);
+    const hasGroup = group !== '' && group.length > 0;
     const version = resourceDefinition.version;
     const kind = this.ensureCapitalized(resourceDefinition.plural);
     const isNamespaced = resourceDefinition.scope === 'Namespaced';
@@ -41,7 +42,7 @@ export class GenericResourceService {
       variables['namespace'] = context.namespaceId;
     }
 
-    const listQuery = group
+    const listQuery = hasGroup
       ? `
       query ListResources${variablesDef} {
         ${group} {
@@ -602,6 +603,34 @@ export class GenericResourceService {
   }
 
   private ensureCapitalized(str: string): string {
+    // Handle compound words like "serviceaccounts" -> "ServiceAccounts"
+    // Check for common compound patterns
+    const compoundPatterns: Record<string, string> = {
+      'serviceaccounts': 'ServiceAccounts',
+      'configmaps': 'ConfigMaps',
+      'replicasets': 'ReplicaSets',
+      'daemonsets': 'DaemonSets',
+      'statefulsets': 'StatefulSets',
+      'persistentvolumes': 'PersistentVolumes',
+      'persistentvolumeclaims': 'PersistentVolumeClaims',
+      'storageclasses': 'StorageClasses',
+      'resourcequotas': 'ResourceQuotas',
+      'limitranges': 'LimitRanges',
+      'horizontalpodautoscalers': 'HorizontalPodAutoscalers',
+      'poddisruptionbudgets': 'PodDisruptionBudgets',
+      'networkpolicies': 'NetworkPolicies',
+      'ingresses': 'Ingresses',
+      'clusterroles': 'ClusterRoles',
+      'clusterrolebindings': 'ClusterRoleBindings',
+      'rolebindings': 'RoleBindings',
+    };
+
+    const lower = str.toLowerCase();
+    if (compoundPatterns[lower]) {
+      return compoundPatterns[lower];
+    }
+
+    // Default: capitalize first letter
     if (str.charAt(0) === str.charAt(0).toUpperCase()) {
       return str;
     }

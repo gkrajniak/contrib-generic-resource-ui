@@ -95,7 +95,7 @@ export class SchemaEffects {
   );
 
   private extractNestedTypeNames(resourceType: IntrospectionType, _kind: string): string[] {
-    const typeNames: string[] = [];
+    const typeNames = new Set<string>();
     const fields = resourceType.fields ?? [];
 
     for (const field of fields) {
@@ -106,11 +106,41 @@ export class SchemaEffects {
           type = type.ofType;
         }
         if (type.name) {
-          typeNames.push(type.name);
+          typeNames.add(type.name);
+
+          // Also extract nested type names from the type's fields (if available from introspection)
+          // This handles cases where spec fields have nested objects
+          if (type.fields) {
+            for (const nestedField of type.fields) {
+              this.extractTypeNamesRecursive(nestedField.type, typeNames, 2);
+            }
+          }
         }
       }
     }
-    return typeNames;
+    return Array.from(typeNames);
+  }
+
+  private extractTypeNamesRecursive(type: IntrospectionType, typeNames: Set<string>, depth: number): void {
+    if (depth <= 0) return;
+
+    // Unwrap NON_NULL/LIST wrappers
+    let unwrapped = type;
+    while (unwrapped.ofType) {
+      unwrapped = unwrapped.ofType;
+    }
+
+    // Only add OBJECT types (not scalars)
+    if (unwrapped.kind === 'OBJECT' && unwrapped.name && !unwrapped.name.startsWith('__')) {
+      typeNames.add(unwrapped.name);
+
+      // Recursively extract from nested fields if available
+      if (unwrapped.fields) {
+        for (const field of unwrapped.fields) {
+          this.extractTypeNamesRecursive(field.type, typeNames, depth - 1);
+        }
+      }
+    }
   }
 
   private enrichResourceType(
@@ -129,9 +159,11 @@ export class SchemaEffects {
 
         if (nestedType) {
           // Rebuild the type structure with nested fields included
+          // Also recursively enrich the nested fields within
+          const enrichedNestedType = this.enrichNestedTypeRecursively(nestedType, nestedTypes);
           return {
             ...field,
-            type: this.enrichTypeWithFields(field.type, nestedType),
+            type: this.enrichTypeWithFields(field.type, enrichedNestedType),
           };
         }
       }
@@ -139,6 +171,39 @@ export class SchemaEffects {
     }) ?? [];
 
     return { ...resourceType, fields };
+  }
+
+  private enrichNestedTypeRecursively(
+    type: IntrospectionType,
+    nestedTypes: Record<string, IntrospectionType | null>
+  ): IntrospectionType {
+    if (!type.fields) {
+      return type;
+    }
+
+    const enrichedFields = type.fields.map((field) => {
+      // Unwrap the field type
+      let unwrapped = field.type;
+      while (unwrapped.ofType) {
+        unwrapped = unwrapped.ofType;
+      }
+
+      const typeName = unwrapped.name;
+      const nestedType = typeName ? nestedTypes[typeName] : null;
+
+      if (nestedType && nestedType.fields) {
+        // Recursively enrich this nested type
+        const enrichedNestedType = this.enrichNestedTypeRecursively(nestedType, nestedTypes);
+        return {
+          ...field,
+          type: this.enrichTypeWithFields(field.type, enrichedNestedType),
+        };
+      }
+
+      return field;
+    });
+
+    return { ...type, fields: enrichedFields };
   }
 
   private enrichTypeWithFields(type: IntrospectionType, nestedType: IntrospectionType): IntrospectionType {

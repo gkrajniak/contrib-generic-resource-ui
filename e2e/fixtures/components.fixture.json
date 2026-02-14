@@ -1,0 +1,981 @@
+{
+  "introspection": {
+    "Component": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "apiVersion",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "kind",
+              "type": {
+                "fields": null,
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "metadata",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "annotations",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "creationTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionGracePeriodSeconds",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "deletionTimestamp",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "finalizers",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generateName",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "generation",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "labels",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "managedFields",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "name",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "namespace",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "ownerReferences",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "io_k8s_apimachinery_pkg_apis_meta_v1_OwnerReferencemetadataownerReferences"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "resourceVersion",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "selfLink",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "uid",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "spec",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "automation",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "Componentspecspecautomation",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "boundedContext",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "componentType",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "dependsOn",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "description",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "displayName",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "exposes",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "extensions",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "Componentspecspecextensions",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "id",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "labels",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "StringMapInput",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "logo",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "Componentspecspeclogo",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "longDescription",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "tags",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "type",
+                    "type": {
+                      "kind": "OBJECT",
+                      "name": "Componentspecspectype",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentspec",
+                "ofType": null
+              }
+            },
+            {
+              "description": "",
+              "name": "status",
+              "type": {
+                "fields": [
+                  {
+                    "description": "",
+                    "name": "conditions",
+                    "type": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "OBJECT",
+                        "name": "Componentstatusstatusconditions"
+                      }
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "eventingLastUpdateTime",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "eventingObservedGeneration",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "nextReconcileTime",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  {
+                    "description": "",
+                    "name": "observedGeneration",
+                    "type": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
+                  }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentstatus",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Component"
+        }
+      }
+    },
+    "Componentspec": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "automation",
+              "type": {
+                "fields": [
+                  { "name": "baseDomain", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "isGithubEnterprise", "type": { "kind": "SCALAR", "name": "Boolean", "ofType": null } },
+                  { "name": "login", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "metadataFile", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "path", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "refName", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "repo", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "repoUrl", "type": { "kind": "SCALAR", "name": "String", "ofType": null } }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentspecspecautomation",
+                "ofType": null
+              }
+            },
+            { "description": "", "name": "boundedContext", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "componentType", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "dependsOn", "type": { "fields": null, "kind": "LIST", "name": null, "ofType": { "kind": "SCALAR", "name": "String" } } },
+            { "description": "", "name": "description", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "displayName", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "exposes", "type": { "fields": null, "kind": "LIST", "name": null, "ofType": { "kind": "SCALAR", "name": "String" } } },
+            {
+              "description": "",
+              "name": "extensions",
+              "type": {
+                "fields": [
+                  { "name": "ci", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsci", "ofType": null } },
+                  { "name": "contributors", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionscontributors", "ofType": null } },
+                  { "name": "docs", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsdocs", "ofType": null } },
+                  { "name": "dora", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsdora", "ofType": null } },
+                  { "name": "issues", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsissues", "ofType": null } },
+                  { "name": "jira", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsjira", "ofType": null } },
+                  { "name": "languages", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionslanguages", "ofType": null } },
+                  { "name": "links", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionslinks", "ofType": null } },
+                  { "name": "piper", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionspiper", "ofType": null } },
+                  { "name": "repository", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsrepository", "ofType": null } },
+                  { "name": "team", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsteam", "ofType": null } },
+                  { "name": "teams", "type": { "kind": "LIST", "name": null, "ofType": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionsteams" } } },
+                  { "name": "template", "type": { "kind": "OBJECT", "name": "Componentspecspecextensionsspecextensionstemplate", "ofType": null } },
+                  { "name": "toolProbabilities", "type": { "kind": "OBJECT", "name": "ComponentspecspecextensionsspecextensionstoolProbabilities", "ofType": null } },
+                  { "name": "vulnerabilityExtension", "type": { "kind": "OBJECT", "name": "ComponentspecspecextensionsspecextensionsvulnerabilityExtension", "ofType": null } }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentspecspecextensions",
+                "ofType": null
+              }
+            },
+            { "description": "", "name": "id", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "labels", "type": { "fields": null, "kind": "SCALAR", "name": "StringMapInput", "ofType": null } },
+            {
+              "description": "",
+              "name": "logo",
+              "type": {
+                "fields": [
+                  { "name": "defaultImage", "type": { "kind": "OBJECT", "name": "ComponentspecspeclogospeclogodefaultImage", "ofType": null } }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentspecspeclogo",
+                "ofType": null
+              }
+            },
+            { "description": "", "name": "longDescription", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "tags", "type": { "fields": null, "kind": "LIST", "name": null, "ofType": { "kind": "SCALAR", "name": "String" } } },
+            {
+              "description": "",
+              "name": "type",
+              "type": {
+                "fields": [
+                  { "name": "categories", "type": { "kind": "LIST", "name": null, "ofType": { "kind": "SCALAR", "name": "String" } } },
+                  { "name": "lifecycle", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                  { "name": "name", "type": { "kind": "SCALAR", "name": "String", "ofType": null } }
+                ],
+                "kind": "OBJECT",
+                "name": "Componentspecspectype",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Componentspec"
+        }
+      }
+    },
+    "Componentstatus": {
+      "data": {
+        "__type": {
+          "fields": [
+            {
+              "description": "",
+              "name": "conditions",
+              "type": {
+                "fields": null,
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "fields": [
+                    { "name": "lastTransitionTime", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                    { "name": "message", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                    { "name": "observedGeneration", "type": { "kind": "SCALAR", "name": "Int", "ofType": null } },
+                    { "name": "reason", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                    { "name": "status", "type": { "kind": "SCALAR", "name": "String", "ofType": null } },
+                    { "name": "type", "type": { "kind": "SCALAR", "name": "String", "ofType": null } }
+                  ],
+                  "kind": "OBJECT",
+                  "name": "Componentstatusstatusconditions"
+                }
+              }
+            },
+            { "description": "", "name": "eventingLastUpdateTime", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "eventingObservedGeneration", "type": { "fields": null, "kind": "SCALAR", "name": "Int", "ofType": null } },
+            { "description": "", "name": "nextReconcileTime", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "observedGeneration", "type": { "fields": null, "kind": "SCALAR", "name": "Int", "ofType": null } }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Componentstatus"
+        }
+      }
+    },
+    "Componentspecspecautomation": {
+      "data": {
+        "__type": {
+          "fields": [
+            { "description": "", "name": "baseDomain", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "isGithubEnterprise", "type": { "fields": null, "kind": "SCALAR", "name": "Boolean", "ofType": null } },
+            { "description": "", "name": "login", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "metadataFile", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "path", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "refName", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "repo", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "repoUrl", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Componentspecspecautomation"
+        }
+      }
+    },
+    "Componentspecspectype": {
+      "data": {
+        "__type": {
+          "fields": [
+            { "description": "", "name": "categories", "type": { "fields": null, "kind": "LIST", "name": null, "ofType": { "kind": "SCALAR", "name": "String" } } },
+            { "description": "", "name": "lifecycle", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } },
+            { "description": "", "name": "name", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Componentspecspectype"
+        }
+      }
+    },
+    "ComponentspecspeclogospeclogodefaultImage": {
+      "data": {
+        "__type": {
+          "fields": [
+            { "description": "", "name": "url", "type": { "fields": null, "kind": "SCALAR", "name": "String", "ofType": null } }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "ComponentspecspeclogospeclogodefaultImage"
+        }
+      }
+    }
+  },
+  "listResponse": {
+    "data": {
+      "metadata_dxp_sap_com": {
+        "v1alpha1": {
+          "Components": {
+            "items": [
+              {
+                "metadata": {
+                  "creationTimestamp": "2026-02-13T15:33:02Z",
+                  "labels": {
+                    "platform-mesh.io/migrated": "true",
+                    "platform-mesh.io/source-cluster": "d1eu1"
+                  },
+                  "name": "sample-docs-component",
+                  "namespace": null,
+                  "uid": "77769be0-28aa-4550-b4b9-09a82b5aa24d"
+                },
+                "spec": {
+                  "boundedContext": null,
+                  "componentType": null,
+                  "description": null,
+                  "displayName": "Sample Docs Component",
+                  "id": "45930f3f-e391-4408-88d8-3127c9f39fbc",
+                  "longDescription": null,
+                  "tags": ["documentation", "sample"]
+                },
+                "status": {
+                  "conditions": [
+                    {
+                      "type": "Ready",
+                      "status": "True",
+                      "reason": "Complete",
+                      "message": "The resource is ready",
+                      "lastTransitionTime": "2026-02-13T15:33:05Z"
+                    }
+                  ],
+                  "observedGeneration": 1
+                }
+              },
+              {
+                "metadata": {
+                  "creationTimestamp": "2026-02-14T16:38:43Z",
+                  "labels": {
+                    "component-id": "bbe48a1f-8184-4b62-b0e6-393ad8f3ad79"
+                  },
+                  "name": "metadata-registry-service",
+                  "namespace": null,
+                  "uid": "afab85c6-bef6-4c28-9499-2ebdfe94b068"
+                },
+                "spec": {
+                  "boundedContext": "catalog-metadata",
+                  "componentType": null,
+                  "description": null,
+                  "displayName": "metadata-registry-service",
+                  "id": "bbe48a1f-8184-4b62-b0e6-393ad8f3ad79",
+                  "longDescription": "The Metadata registry is the metadata repository for Component/Product/Experiment related Metadata.\n\nThe Metadata Registry is meant to be a extensible metadata store where contributes will be able to add additional data elements in a self sufficient way",
+                  "tags": null
+                },
+                "status": {
+                  "conditions": [
+                    {
+                      "type": "Ready",
+                      "status": "True",
+                      "reason": "Complete",
+                      "message": "The resource is ready",
+                      "lastTransitionTime": "2025-03-12T15:19:56Z"
+                    },
+                    {
+                      "type": "extension.ci",
+                      "status": "True",
+                      "reason": "READY",
+                      "message": "Data Updated.",
+                      "lastTransitionTime": "2022-11-16T09:46:33Z"
+                    },
+                    {
+                      "type": "extension.docs",
+                      "status": "True",
+                      "reason": "READY",
+                      "message": "Data Updated.",
+                      "lastTransitionTime": "2022-11-16T09:46:33Z"
+                    },
+                    {
+                      "type": "extension.repository",
+                      "status": "True",
+                      "reason": "READY",
+                      "message": "Data Updated.",
+                      "lastTransitionTime": "2022-11-16T09:46:33Z"
+                    }
+                  ],
+                  "observedGeneration": 9109,
+                  "eventingObservedGeneration": 9109,
+                  "nextReconcileTime": "2026-02-14T21:05:56Z"
+                }
+              },
+              {
+                "metadata": {
+                  "creationTimestamp": "2026-02-13T15:33:03Z",
+                  "labels": {
+                    "platform-mesh.io/migrated": "true"
+                  },
+                  "name": "example-microservice",
+                  "namespace": null,
+                  "uid": "153ef7b9-21a2-4969-a383-903c48deb094"
+                },
+                "spec": {
+                  "boundedContext": null,
+                  "componentType": null,
+                  "description": "Example microservice component",
+                  "displayName": "Example Microservice",
+                  "id": "c5ecd823-f34e-4758-85f4-a7a1d717a6f0",
+                  "longDescription": null,
+                  "tags": ["microservice", "example"]
+                },
+                "status": {
+                  "conditions": [
+                    {
+                      "type": "Ready",
+                      "status": "True",
+                      "reason": "Complete",
+                      "message": "The resource is ready",
+                      "lastTransitionTime": "2026-02-13T15:33:06Z"
+                    }
+                  ],
+                  "observedGeneration": 1
+                }
+              }
+            ],
+            "resourceVersion": "28452"
+          }
+        }
+      }
+    }
+  },
+  "detailResponse": {
+    "data": {
+      "metadata_dxp_sap_com": {
+        "v1alpha1": {
+          "Component": {
+            "metadata": {
+              "annotations": {
+                "github.example.com/acronym": "mrs",
+                "github.example.com/login": "example-org",
+                "github.example.com/repo-name": "metadata-registry-service",
+                "github.example.com/repo-url": "https://github.example.com/example-org/metadata-registry-service",
+                "kcp.io/cluster": "28xbqo0bwebrv2o3"
+              },
+              "creationTimestamp": "2026-02-14T16:38:43Z",
+              "deletionTimestamp": null,
+              "generation": 2,
+              "labels": {
+                "component-id": "bbe48a1f-8184-4b62-b0e6-393ad8f3ad79"
+              },
+              "name": "metadata-registry-service",
+              "namespace": null,
+              "resourceVersion": "28070",
+              "uid": "afab85c6-bef6-4c28-9499-2ebdfe94b068"
+            },
+            "spec": {
+              "automation": {
+                "baseDomain": "github.example.com",
+                "isGithubEnterprise": true,
+                "login": "example-org",
+                "refName": "main",
+                "repo": "metadata-registry-service",
+                "repoUrl": "https://github.example.com/example-org/metadata-registry-service"
+              },
+              "boundedContext": "catalog-metadata",
+              "componentType": null,
+              "dependsOn": [
+                "component:metadata-registry-operator",
+                "component:metadata-registry-common",
+                "component:golang-authz",
+                "component:golang-sdk"
+              ],
+              "description": null,
+              "displayName": "metadata-registry-service",
+              "exposes": ["api:metadata-service-graphql"],
+              "extensions": {
+                "ci": {
+                  "hasGithubActionWorkflows": true
+                },
+                "contributors": {
+                  "contributors": [
+                    {
+                      "avatarURL": "https://example.com/avatars/user1",
+                      "login": "user1",
+                      "numberOfAllTimeCommits": 1185,
+                      "numberOfRecentCommits": 21,
+                      "profileURL": "https://github.example.com/user1",
+                      "componentExpert": true
+                    },
+                    {
+                      "avatarURL": "https://example.com/avatars/user2",
+                      "login": "user2",
+                      "numberOfAllTimeCommits": 106,
+                      "numberOfRecentCommits": 18,
+                      "profileURL": "https://github.example.com/user2"
+                    },
+                    {
+                      "avatarURL": "https://example.com/avatars/user3",
+                      "login": "user3",
+                      "numberOfAllTimeCommits": 67,
+                      "numberOfRecentCommits": 10,
+                      "profileURL": "https://github.example.com/user3"
+                    },
+                    {
+                      "avatarURL": "https://example.com/avatars/user4",
+                      "login": "user4",
+                      "numberOfAllTimeCommits": 33,
+                      "numberOfRecentCommits": 6,
+                      "profileURL": "https://github.example.com/user4"
+                    }
+                  ]
+                },
+                "docs": {
+                  "hasReadme": true
+                },
+                "dora": {
+                  "identifier": "metadata-registry-service"
+                },
+                "jira": {
+                  "projectKey": "PLATFORM"
+                },
+                "languages": {
+                  "languages": {
+                    "Dockerfile": 1370,
+                    "Go": 344306,
+                    "Makefile": 7556,
+                    "Shell": 9233
+                  }
+                },
+                "piper": {
+                  "enabled": true
+                },
+                "repository": {
+                  "activityScore": 68,
+                  "advancedSecurityStatus": "enabled",
+                  "branches": {
+                    "defaultBranch": {
+                      "commits": [
+                        {
+                          "sha": "9701dafd49dd17d565fc00efd31efe7587f36654",
+                          "url": "https://github.example.com/example-org/metadata-registry-service/commit/9701dafd49dd17d565fc00efd31efe7587f36654"
+                        },
+                        {
+                          "sha": "27975961cadad5dc324f636db8813b7d0490c162",
+                          "url": "https://github.example.com/example-org/metadata-registry-service/commit/27975961cadad5dc324f636db8813b7d0490c162"
+                        }
+                      ],
+                      "name": "main"
+                    }
+                  },
+                  "createdAt": "2022-11-16T09:38:48Z",
+                  "defaultBranch": "main",
+                  "lastUpdatedAt": "2026-02-13T02:59:33Z",
+                  "numberOfClosedPullRequests": 30,
+                  "numberOfForks": 1,
+                  "numberOfOpenIssues": 20,
+                  "numberOfOpenPullRequests": 15,
+                  "numberOfStargazers": 1,
+                  "numberOfSubscribers": 0,
+                  "openPullRequests": [
+                    {
+                      "createdAt": "2026-02-12T15:20:51Z",
+                      "diffUrl": "https://github.example.com/example-org/metadata-registry-service/pull/5060.diff",
+                      "number": 5060,
+                      "state": "open",
+                      "title": "WIP: add components batch subscription",
+                      "updatedAt": "2026-02-12T15:21:20Z",
+                      "url": "https://github.example.com/example-org/metadata-registry-service/pull/5060"
+                    },
+                    {
+                      "createdAt": "2026-02-12T14:39:01Z",
+                      "diffUrl": "https://github.example.com/example-org/metadata-registry-service/pull/5059.diff",
+                      "number": 5059,
+                      "state": "open",
+                      "title": "fix(tests): wait for manager cache sync before running tests",
+                      "updatedAt": "2026-02-12T14:53:48Z",
+                      "url": "https://github.example.com/example-org/metadata-registry-service/pull/5059"
+                    }
+                  ],
+                  "secretScanningPushProtectionStatus": "enabled",
+                  "secretScanningStatus": "enabled",
+                  "tags": {
+                    "count": 885,
+                    "latestTag": {
+                      "name": "v0.10.0",
+                      "url": "https://github.example.com/example-org/metadata-registry-service/releases/tag/v0.10.0"
+                    }
+                  },
+                  "url": "https://github.example.com/example-org/metadata-registry-service",
+                  "visibility": "public"
+                },
+                "teams": [
+                  {
+                    "name": "platform-team"
+                  }
+                ],
+                "toolProbabilities": {
+                  "probabilities": {
+                    "cmake": 10000,
+                    "docker": 198,
+                    "go": 49802,
+                    "make": 40000
+                  }
+                },
+                "vulnerabilityExtension": {
+                  "motivation": {
+                    "criticalHTMLUrl": "https://github.example.com/example-org/metadata-registry-service/security/dependabot?q=is%3Aopen+severity%3Acritical",
+                    "highHTMLUrl": "https://github.example.com/example-org/metadata-registry-service/security/dependabot?q=is%3Aopen+severity%3Ahigh",
+                    "moderateHTMLUrl": "https://github.example.com/example-org/metadata-registry-service/security/dependabot?q=is%3Aopen+severity%3Amoderate"
+                  }
+                }
+              },
+              "id": "bbe48a1f-8184-4b62-b0e6-393ad8f3ad79",
+              "logo": {
+                "defaultImage": {
+                  "url": "https://example.com/assets/logo.png"
+                }
+              },
+              "longDescription": "The Metadata registry is the metadata repository for Component/Product/Experiment related Metadata.\n\nThe Metadata Registry is meant to be a extensible metadata store where contributes will be able to add additional data elements in a self sufficient way",
+              "tags": ["golang", "graphql", "microservice"],
+              "type": {
+                "categories": ["graphql"],
+                "lifecycle": "production",
+                "name": "microservice"
+              }
+            },
+            "status": {
+              "conditions": [
+                {
+                  "lastTransitionTime": "2022-11-16T09:46:33Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.ci"
+                },
+                {
+                  "lastTransitionTime": "2022-11-16T09:46:33Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.docs"
+                },
+                {
+                  "lastTransitionTime": "2022-11-16T09:46:33Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.repository"
+                },
+                {
+                  "lastTransitionTime": "2022-11-16T09:46:33Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.team"
+                },
+                {
+                  "lastTransitionTime": "2023-08-16T13:45:30Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.dora"
+                },
+                {
+                  "lastTransitionTime": "2023-08-16T13:45:30Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.jira"
+                },
+                {
+                  "lastTransitionTime": "2023-08-16T13:45:30Z",
+                  "message": "Data Updated.",
+                  "reason": "READY",
+                  "status": "True",
+                  "type": "extension.piper"
+                },
+                {
+                  "lastTransitionTime": "2025-03-12T15:19:56Z",
+                  "message": "The resource is ready",
+                  "reason": "Complete",
+                  "status": "True",
+                  "type": "Ready"
+                },
+                {
+                  "lastTransitionTime": "2025-03-12T15:19:56Z",
+                  "message": "The subroutine is complete",
+                  "reason": "Complete",
+                  "status": "True",
+                  "type": "ComponentSubroutine_Ready"
+                }
+              ],
+              "eventingLastUpdateTime": "2026-02-13T07:54:56Z",
+              "eventingObservedGeneration": 9109,
+              "nextReconcileTime": "2026-02-14T21:05:56Z",
+              "observedGeneration": 9109
+            }
+          }
+        }
+      }
+    }
+  },
+  "yamlResponse": {
+    "data": {
+      "metadata_dxp_sap_com": {
+        "v1alpha1": {
+          "ComponentYaml": "apiVersion: metadata.dxp.sap.com/v1alpha1\nkind: Component\nmetadata:\n  annotations:\n    github.example.com/acronym: mrs\n    github.example.com/login: example-org\n    github.example.com/repo-name: metadata-registry-service\n    github.example.com/repo-url: https://github.example.com/example-org/metadata-registry-service\n    kcp.io/cluster: 28xbqo0bwebrv2o3\n  creationTimestamp: \"2026-02-14T16:38:43Z\"\n  generation: 2\n  labels:\n    component-id: bbe48a1f-8184-4b62-b0e6-393ad8f3ad79\n  name: metadata-registry-service\n  resourceVersion: \"28070\"\n  uid: afab85c6-bef6-4c28-9499-2ebdfe94b068\nspec:\n  automation:\n    baseDomain: github.example.com\n    isGithubEnterprise: true\n    login: example-org\n    refName: main\n    repo: metadata-registry-service\n    repoUrl: https://github.example.com/example-org/metadata-registry-service\n  boundedContext: catalog-metadata\n  dependsOn:\n    - component:metadata-registry-operator\n    - component:metadata-registry-common\n    - component:golang-authz\n    - component:golang-sdk\n  displayName: metadata-registry-service\n  exposes:\n    - api:metadata-service-graphql\n  extensions:\n    ci:\n      hasGithubActionWorkflows: true\n    contributors:\n      contributors:\n        - avatarURL: https://example.com/avatars/user1\n          componentExpert: true\n          login: user1\n          numberOfAllTimeCommits: 1185\n          profileURL: https://github.example.com/user1\n        - avatarURL: https://example.com/avatars/user2\n          login: user2\n          numberOfAllTimeCommits: 106\n          profileURL: https://github.example.com/user2\n    docs:\n      hasReadme: true\n    dora:\n      identifier: metadata-registry-service\n    jira:\n      projectKey: PLATFORM\n    languages:\n      languages:\n        Dockerfile: 1370\n        Go: 344306\n        Makefile: 7556\n        Shell: 9233\n    piper:\n      enabled: true\n    repository:\n      activityScore: 68\n      advancedSecurityStatus: enabled\n      createdAt: \"2022-11-16T09:38:48Z\"\n      defaultBranch: main\n      lastUpdatedAt: \"2026-02-13T02:59:33Z\"\n      numberOfClosedPullRequests: 30\n      numberOfForks: 1\n      numberOfOpenIssues: 20\n      numberOfOpenPullRequests: 15\n      numberOfStargazers: 1\n      secretScanningPushProtectionStatus: enabled\n      secretScanningStatus: enabled\n      url: https://github.example.com/example-org/metadata-registry-service\n      visibility: public\n    teams:\n      - name: platform-team\n  id: bbe48a1f-8184-4b62-b0e6-393ad8f3ad79\n  logo:\n    defaultImage:\n      url: https://example.com/assets/logo.png\n  longDescription: |\n    The Metadata registry is the metadata repository for Component/Product/Experiment related Metadata.\n\n    The Metadata Registry is meant to be a extensible metadata store where contributes will be able to add additional data elements in a self sufficient way\n  tags:\n    - golang\n    - graphql\n    - microservice\n  type:\n    categories:\n      - graphql\n    lifecycle: production\n    name: microservice\nstatus:\n  conditions:\n    - lastTransitionTime: \"2022-11-16T09:46:33Z\"\n      message: Data Updated.\n      reason: READY\n      status: \"True\"\n      type: extension.ci\n    - lastTransitionTime: \"2022-11-16T09:46:33Z\"\n      message: Data Updated.\n      reason: READY\n      status: \"True\"\n      type: extension.docs\n    - lastTransitionTime: \"2025-03-12T15:19:56Z\"\n      message: The resource is ready\n      reason: Complete\n      status: \"True\"\n      type: Ready\n  eventingLastUpdateTime: \"2026-02-13T07:54:56Z\"\n  eventingObservedGeneration: 9109\n  nextReconcileTime: \"2026-02-14T21:05:56Z\"\n  observedGeneration: 9109\n"
+        }
+      }
+    }
+  }
+}

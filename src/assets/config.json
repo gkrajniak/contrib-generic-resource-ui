@@ -1,21 +1,21 @@
 {
   "resourceDefinition": {
-    "group": "core.platform-mesh.io",
+    "group": "metadata.dxp.sap.com",
     "version": "v1alpha1",
-    "kind": "AccountInfo",
-    "plural": "AccountInfoes",
-    "singular": "AccountInfo",
+    "kind": "Component",
+    "plural": "Components",
+    "singular": "component",
     "scope": "Cluster"
   },
   "portalContext": {
     "crdGatewayApiUrl": "https://sap.portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:sap:workspaces:tobias-test-home/graphql"
   },
-  "resourceId": "account",
+  "resourceId": "metadata-registry-service",
   "ui": {
-    "title": "Account Info",
+    "title": "Components",
     "showCreateButton": false,
-    "showDeleteButton": false,
-    "showEditButton": false,
+    "showDeleteButton": true,
+    "showEditButton": true,
     "showYamlPanel": true
   },
   "token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJJRGt3c1Nxb0UxYUtBZ1drSEhIMGFaZzhtNy03QnlDcGdIWkl5Mk1zS3owIn0.eyJleHAiOjE3NzExMDM1MzUsImlhdCI6MTc3MTA3NDczNSwiYXV0aF90aW1lIjoxNzcxMDc0NjM2LCJqdGkiOiI3OWY5NmU4NC01Zjc1LWNjNGQtMjhkNy0zNWI5NmQ5NzZjZWMiLCJpc3MiOiJodHRwczovL3BvcnRhbC5sb2NhbGhvc3Q6ODQ0My9rZXljbG9hay9yZWFsbXMvc2FwIiwiYXVkIjoiMmY5YWRjMWEtYjkwNC00NTg3LThhNzktN2FiNzIwZjU3MzcwIiwic3ViIjoiNjg4NWJmZDctMDE5YS00NWNiLThjZWItZDI4MDIzNGY3Mjk5IiwidHlwIjoiSUQiLCJhenAiOiIyZjlhZGMxYS1iOTA0LTQ1ODctOGE3OS03YWI3MjBmNTczNzAiLCJzaWQiOiJIajlVU1VqYnpJa1FsQWNqdmhiSXhrLXoiLCJhdF9oYXNoIjoiMi1uU29QZ3I5VUJwSlVJZzZnVTJJUSIsImFjciI6IjEiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYnJva2VyIjp7InJvbGVzIjpbInJlYWQtdG9rZW4iXX19LCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IkJhc3RpYW4gRWNodGVyaG9lbHRlciIsInByZWZlcnJlZF91c2VybmFtZSI6ImJhc3RpYW4uZWNodGVyaG9lbHRlckBzYXAuY29tIiwiZ2l2ZW5fbmFtZSI6IkJhc3RpYW4iLCJmYW1pbHlfbmFtZSI6IkVjaHRlcmhvZWx0ZXIiLCJlbWFpbCI6ImJhc3RpYW4uZWNodGVyaG9lbHRlckBzYXAuY29tIn0.UVAeCYjMrtah77Hwf8z-3TmXfQlM770rD_GzkKeP-RjHI8r8URbnF4oRRJgjBKFlhUIhvlXgWjC5N84Xt8MpfYBp0KoTXJU2FhI3vnvXBJQX5AMFnrBzIXWgxGsDgUxZsCeMh_4sWTyf74AsG6pX6E9IlMkC_F8cyhGlLDhoZQ8m6UN5u4IwYMvH8VhTur3_2D1_WcgS9ekHNMk1HSxj2r7MfzDcrPFB8dUTf7iWaeNnhKDmwGHEG88vS4tieN22Pjon4rrm2YUR5M5emntKHRXIVF99irvNnQYQ-rJMepochO0DDm0V8_OelpQmPx6ac2ZnGD4pqNM8XW7z8pYvsw"

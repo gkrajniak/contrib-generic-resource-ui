@@ -56,11 +56,11 @@ import { MonacoYamlViewerComponent } from 'components/shared/monaco-yaml-viewer/
           fd-button
           fdType="transparent"
           [glyph]="hideManagedFields() ? 'show' : 'hide'"
-          [ariaLabel]="hideManagedFields() ? 'Show managed fields' : 'Hide managed fields'"
+          [ariaLabel]="hideManagedFields() ? 'Show system fields' : 'Hide system fields'"
           [disabled]="loading()"
           (click)="toggleManagedFields()"
         >
-          {{ hideManagedFields() ? 'Show managed fields' : 'Hide managed fields' }}
+          {{ hideManagedFields() ? 'Show system fields' : 'Hide system fields' }}
         </button>
         <fd-toolbar-separator></fd-toolbar-separator>
         <!-- eslint-disable @angular-eslint/template/elements-content -->
@@ -146,7 +146,7 @@ export class YamlPanelComponent implements OnInit {
   protected readonly yamlContent = computed(() => {
     const raw = this.rawYamlContent();
     if (!raw) return '';
-    return this.hideManagedFields() ? this.stripManagedFieldsFromYaml(raw) : raw;
+    return this.hideManagedFields() ? this.stripManagedFieldsAndAnnotations(raw) : raw;
   });
 
   protected readonly currentResourceVersion = computed(() => {
@@ -178,13 +178,21 @@ export class YamlPanelComponent implements OnInit {
     return match ? match[1] : null;
   }
 
-  private stripManagedFieldsFromYaml(yaml: string): string {
+  private stripManagedFieldsAndAnnotations(yaml: string): string {
     const lines = yaml.split('\n');
     const result: string[] = [];
     let inManagedFields = false;
     let managedFieldsIndent = 0;
+    let skipNextLine = false;
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      if (skipNextLine) {
+        skipNextLine = false;
+        continue;
+      }
+
       // Check if this is the managedFields key
       const managedFieldsMatch = line.match(/^(\s*)managedFields:/);
       if (managedFieldsMatch) {
@@ -205,6 +213,27 @@ export class YamlPanelComponent implements OnInit {
           result.push(line);
         }
         // Skip lines within managedFields
+        continue;
+      }
+
+      // Skip kubectl.kubernetes.io/last-applied-configuration annotation
+      if (line.includes('kubectl.kubernetes.io/last-applied-configuration:')) {
+        // Check if value is on the same line or next line (for multi-line values)
+        const nextLine = lines[i + 1];
+        if (nextLine && nextLine.trim().startsWith('|')) {
+          // Multi-line value - skip until we find a line with less/equal indentation
+          const annotationIndent = line.match(/^(\s*)/)?.[1].length ?? 0;
+          i++; // Skip the '|' line
+          while (i + 1 < lines.length) {
+            const checkLine = lines[i + 1];
+            const checkIndent = checkLine.match(/^(\s*)/)?.[1].length ?? 0;
+            const isEmpty = checkLine.trim() === '';
+            if (!isEmpty && checkIndent <= annotationIndent + 2) {
+              break;
+            }
+            i++;
+          }
+        }
         continue;
       }
 

@@ -420,6 +420,9 @@ export class ResourceDetailViewComponent implements OnInit {
     console.log('[DetailView] ngOnInit called');
     this.contextService.initialize();
 
+    // Check for namespace in URL query params and update context
+    this.contextService.updateNamespaceFromUrl();
+
     // Wait for context AND schema to be ready before loading resource detail
     combineLatest([
       this.store.select(selectIsContextInitialized),

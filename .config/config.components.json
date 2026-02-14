@@ -1,0 +1,21 @@
+{
+  "resourceDefinition": {
+    "group": "metadata.dxp.sap.com",
+    "version": "v1alpha1",
+    "kind": "Component",
+    "plural": "Components",
+    "singular": "component",
+    "scope": "Cluster"
+  },
+  "portalContext": {
+    "crdGatewayApiUrl": "https://sap.portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:sap:workspaces:tobias-test-home/graphql"
+  },
+  "resourceId": "metadata-registry-service",
+  "ui": {
+    "title": "Components",
+    "showCreateButton": false,
+    "showDeleteButton": true,
+    "showEditButton": true,
+    "showYamlPanel": true
+  }
+}

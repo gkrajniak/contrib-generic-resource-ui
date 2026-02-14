@@ -1,18 +1,34 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import LuigiClient from '@luigi-project/client';
+import { setNamespace } from 'state/context/context.actions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
   private router = inject(Router);
+  private store = inject(Store);
 
-  navigateToResource(resourceName: string): void {
+  navigateToResource(resourceName: string, namespace?: string): void {
+    // Update the namespace in state before navigating
+    if (namespace) {
+      this.store.dispatch(setNamespace({ namespaceId: namespace }));
+    }
+
     if (this.isInLuigiContext()) {
-      LuigiClient.linkManager().navigate(resourceName);
+      // In Luigi context, use withParams for query parameters
+      const linkManager = LuigiClient.linkManager();
+      if (namespace) {
+        linkManager.withParams({ namespace }).navigate(resourceName);
+      } else {
+        linkManager.navigate(resourceName);
+      }
     } else {
-      this.router.navigate(['/', resourceName]);
+      // Standalone mode: use query params
+      const queryParams = namespace ? { namespace } : {};
+      this.router.navigate(['/', resourceName], { queryParams });
     }
   }
 
