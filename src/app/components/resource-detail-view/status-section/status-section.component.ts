@@ -5,13 +5,6 @@ import {
   input,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import {
-  LayoutPanelComponent,
-  LayoutPanelBodyComponent,
-  LayoutPanelHeaderComponent,
-  LayoutPanelHeadComponent,
-  LayoutPanelTitleDirective,
-} from '@fundamental-ngx/core/layout-panel';
 import { TableModule } from '@fundamental-ngx/core/table';
 import { ObjectStatusModule } from '@fundamental-ngx/core/object-status';
 import { IconComponent } from '@fundamental-ngx/core/icon';
@@ -31,11 +24,6 @@ interface StatusField {
   selector: 'app-status-section',
   imports: [
     DatePipe,
-    LayoutPanelComponent,
-    LayoutPanelBodyComponent,
-    LayoutPanelHeaderComponent,
-    LayoutPanelHeadComponent,
-    LayoutPanelTitleDirective,
     TableModule,
     ObjectStatusModule,
     IconComponent,
@@ -43,79 +31,101 @@ interface StatusField {
   ],
   template: `
     @if (hasStatus()) {
-      <fd-layout-panel>
-        <fd-layout-panel-header>
-          <fd-layout-panel-head>
-            <h4 fd-layout-panel-title>Status</h4>
-          </fd-layout-panel-head>
-        </fd-layout-panel-header>
+      <div class="status-section">
+        <!-- Section header -->
+        <div class="section-header">
+          <fd-icon glyph="status-in-process" class="header-icon"></fd-icon>
+          <h3 class="section-title">Status</h3>
+        </div>
 
-        <fd-layout-panel-body>
-          @if (statusFields().length > 0) {
-            <div class="status-grid">
-              @for (field of statusFields(); track field.key) {
-                <div class="status-item">
-                  <div class="status-label">
-                    {{ field.label }}
-                    @if (field.description) {
-                      <fd-icon
-                        glyph="hint"
-                        class="info-icon"
-                        [title]="field.description"
-                      ></fd-icon>
-                    }
-                  </div>
-                  <div class="status-value">
-                    <app-value-cell
-                      [value]="field.value"
-                      [type]="field.type"
-                    ></app-value-cell>
-                  </div>
+        @if (statusFields().length > 0) {
+          <div class="status-grid">
+            @for (field of statusFields(); track field.key) {
+              <div class="status-item">
+                <div class="status-label">
+                  {{ field.label }}
+                  @if (field.description) {
+                    <fd-icon
+                      glyph="hint"
+                      class="info-icon"
+                      [title]="field.description"
+                    ></fd-icon>
+                  }
                 </div>
-              }
-            </div>
-          }
+                <div class="status-value">
+                  <app-value-cell
+                    [value]="field.value"
+                    [type]="field.type"
+                  ></app-value-cell>
+                </div>
+              </div>
+            }
+          </div>
+        }
 
-          @if (conditions().length > 0) {
-            <h5 class="conditions-title">Conditions</h5>
-            <table fd-table>
-              <thead fd-table-header>
+        @if (conditions().length > 0) {
+          <h5 class="conditions-title">Conditions</h5>
+          <table fd-table>
+            <thead fd-table-header>
+              <tr fd-table-row>
+                <th fd-table-cell>Type</th>
+                <th fd-table-cell>Status</th>
+                <th fd-table-cell>Reason</th>
+                <th fd-table-cell>Message</th>
+                <th fd-table-cell>Last Transition</th>
+              </tr>
+            </thead>
+            <tbody fd-table-body>
+              @for (condition of conditions(); track condition.type) {
                 <tr fd-table-row>
-                  <th fd-table-cell>Type</th>
-                  <th fd-table-cell>Status</th>
-                  <th fd-table-cell>Reason</th>
-                  <th fd-table-cell>Message</th>
-                  <th fd-table-cell>Last Transition</th>
+                  <td fd-table-cell>{{ condition.type }}</td>
+                  <td fd-table-cell>
+                    <span fd-object-status
+                      [status]="getConditionStatus(condition)"
+                      [label]="condition.status"
+                    ></span>
+                  </td>
+                  <td fd-table-cell>{{ condition.reason || '-' }}</td>
+                  <td fd-table-cell class="message-cell">
+                    {{ condition.message || '-' }}
+                  </td>
+                  <td fd-table-cell>
+                    {{ condition.lastTransitionTime | date: 'short' }}
+                  </td>
                 </tr>
-              </thead>
-              <tbody fd-table-body>
-                @for (condition of conditions(); track condition.type) {
-                  <tr fd-table-row>
-                    <td fd-table-cell>{{ condition.type }}</td>
-                    <td fd-table-cell>
-                      <span fd-object-status
-                        [status]="getConditionStatus(condition)"
-                        [label]="condition.status"
-                      ></span>
-                    </td>
-                    <td fd-table-cell>{{ condition.reason || '-' }}</td>
-                    <td fd-table-cell class="message-cell">
-                      {{ condition.message || '-' }}
-                    </td>
-                    <td fd-table-cell>
-                      {{ condition.lastTransitionTime | date: 'short' }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          }
-        </fd-layout-panel-body>
-      </fd-layout-panel>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
     }
   `,
   styles: [
     `
+      .status-section {
+        padding: 1rem;
+        background: var(--sapGroup_ContentBackground);
+        border-radius: 8px;
+        border: 1px solid var(--sapGroup_TitleBorderColor);
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--sapGroup_TitleBorderColor);
+      }
+      .header-icon {
+        font-size: 1.25rem;
+        color: var(--sapContent_IconColor);
+      }
+      .section-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--sapTextColor);
+      }
       .status-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

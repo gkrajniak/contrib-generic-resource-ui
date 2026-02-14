@@ -4,17 +4,10 @@ import {
   computed,
   input,
 } from '@angular/core';
-import {
-  LayoutPanelComponent,
-  LayoutPanelBodyComponent,
-  LayoutPanelHeaderComponent,
-  LayoutPanelHeadComponent,
-  LayoutPanelTitleDirective,
-} from '@fundamental-ngx/core/layout-panel';
 import { IconComponent } from '@fundamental-ngx/core/icon';
 import { DetailFieldType, FieldAnalysis, NestedFieldInfo, Resource } from 'models/index';
 import { ValueCellComponent } from 'components/shared/value-cell/value-cell.component';
-import { NestedObjectCardComponent } from 'components/shared/nested-object-card/nested-object-card.component';
+import { NestedObjectSectionComponent } from 'components/shared/nested-object-section/nested-object-section.component';
 import { humanizeFieldName } from 'utils/humanize';
 
 interface ScalarField {
@@ -34,66 +27,87 @@ interface NestedObjectEntry {
 @Component({
   selector: 'app-spec-section',
   imports: [
-    LayoutPanelComponent,
-    LayoutPanelBodyComponent,
-    LayoutPanelHeaderComponent,
-    LayoutPanelHeadComponent,
-    LayoutPanelTitleDirective,
     IconComponent,
     ValueCellComponent,
-    NestedObjectCardComponent,
+    NestedObjectSectionComponent,
   ],
   template: `
     @if (hasSpec()) {
-      <fd-layout-panel>
-        <fd-layout-panel-header>
-          <fd-layout-panel-head>
-            <h4 fd-layout-panel-title>Spec</h4>
-          </fd-layout-panel-head>
-        </fd-layout-panel-header>
+      <div class="spec-section">
+        <!-- Section header -->
+        <div class="section-header">
+          <fd-icon glyph="settings" class="header-icon"></fd-icon>
+          <h3 class="section-title">Spec</h3>
+        </div>
 
-        <fd-layout-panel-body>
-          @if (scalarFields().length > 0) {
-            <div class="spec-grid">
-              @for (field of scalarFields(); track field.key) {
-                <div class="spec-item">
-                  <div class="spec-label">
-                    {{ field.label }}
-                    @if (field.description) {
-                      <fd-icon
-                        glyph="hint"
-                        class="info-icon"
-                        [title]="field.description"
-                      ></fd-icon>
-                    }
-                  </div>
-                  <div class="spec-value">
-                    <app-value-cell
-                      [value]="field.value"
-                      [type]="field.type"
-                    ></app-value-cell>
-                  </div>
+        <!-- Scalar fields in a grid -->
+        @if (scalarFields().length > 0) {
+          <div class="spec-grid">
+            @for (field of scalarFields(); track field.key) {
+              <div class="spec-item">
+                <div class="spec-label">
+                  {{ field.label }}
+                  @if (field.description) {
+                    <fd-icon
+                      glyph="hint"
+                      class="info-icon"
+                      [title]="field.description"
+                    ></fd-icon>
+                  }
                 </div>
-              }
-            </div>
-          }
+                <div class="spec-value">
+                  <app-value-cell
+                    [value]="field.value"
+                    [type]="field.type"
+                  ></app-value-cell>
+                </div>
+              </div>
+            }
+          </div>
+        }
 
-          @if (nestedObjectFields().length > 0) {
-            <div class="nested-objects">
-              @for (nested of nestedObjectFields(); track nested.key) {
-                <app-nested-object-card
-                  [fieldInfo]="nested.fieldInfo"
-                  [data]="nested.data"
-                ></app-nested-object-card>
-              }
-            </div>
-          }
-        </fd-layout-panel-body>
-      </fd-layout-panel>
+        <!-- Nested objects as lightweight sections -->
+        @if (nestedObjectFields().length > 0) {
+          <div class="nested-sections">
+            @for (nested of nestedObjectFields(); track nested.key) {
+              <app-nested-object-section
+                [fieldInfo]="nested.fieldInfo"
+                [data]="nested.data"
+                [depth]="0"
+                [maxDepth]="3"
+              ></app-nested-object-section>
+            }
+          </div>
+        }
+      </div>
     }
   `,
   styles: [
     `
+      .spec-section {
+        padding: 1rem;
+        background: var(--sapGroup_ContentBackground);
+        border-radius: 8px;
+        border: 1px solid var(--sapGroup_TitleBorderColor);
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--sapGroup_TitleBorderColor);
+      }
+      .header-icon {
+        font-size: 1.25rem;
+        color: var(--sapContent_IconColor);
+      }
+      .section-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--sapTextColor);
+      }
       .spec-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -128,14 +142,11 @@ interface NestedObjectEntry {
         color: var(--sapTextColor);
         word-break: break-word;
       }
-      .spec-grid + .nested-objects {
+      .nested-sections {
         margin-top: 1.5rem;
-      }
-      .nested-objects {
         display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
       }
     `,
   ],
