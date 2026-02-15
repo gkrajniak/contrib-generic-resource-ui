@@ -47,7 +47,15 @@ interface NestedFieldEntry {
     @if (hasData()) {
       <div class="nested-section" [class.is-root]="depth() === 0">
         <!-- Section header with icon and title -->
-        <div class="section-header" [class.collapsible]="isCollapsible()" (click)="toggleCollapse()">
+        <div
+          class="section-header"
+          [class.collapsible]="isCollapsible()"
+          [attr.role]="isCollapsible() ? 'button' : null"
+          [attr.tabindex]="isCollapsible() ? 0 : null"
+          (click)="toggleCollapse()"
+          (keydown.enter)="toggleCollapse()"
+          (keydown.space)="toggleCollapse(); $event.preventDefault()"
+        >
           <div class="header-icon-wrapper">
             <fd-icon [glyph]="icon()" class="header-icon"></fd-icon>
           </div>

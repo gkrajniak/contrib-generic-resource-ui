@@ -1,4 +1,7 @@
 import {
+  applyYaml,
+  applyYamlFailure,
+  applyYamlSuccess,
   createResource,
   createResourceFailure,
   createResourceSuccess,
@@ -11,6 +14,7 @@ import {
   loadResources,
   loadResourcesFailure,
   loadResourcesSuccess,
+  resourceDetailUpdated,
   resourcesUpdated,
   updateResource,
   updateResourceFailure,
@@ -84,13 +88,20 @@ export class ResourcesEffects {
 
         // Use readFromParentKcpPath from resource definition config
         const readFromParentKcpPath = resourceDefinition.readFromParentKcpPath ?? false;
+        let isFirstEmission = true;
 
         return this.resourceService
-          .read(resourceName, resourceDefinition, fieldAnalysis, context, readFromParentKcpPath)
+          .watch(resourceName, resourceDefinition, fieldAnalysis, context, readFromParentKcpPath)
           .pipe(
-            map((resource) => loadResourceDetailSuccess({ resource })),
+            map((resource) => {
+              if (isFirstEmission) {
+                isFirstEmission = false;
+                return loadResourceDetailSuccess({ resource });
+              }
+              return resourceDetailUpdated({ resource });
+            }),
             catchError((error) => {
-              console.error('Error reading resource', error);
+              console.error('Error watching resource', error);
               return of(loadResourceDetailFailure({ error: error.message }));
             })
           );
@@ -181,4 +192,30 @@ export class ResourcesEffects {
       })
     )
   );
+
+  applyYaml$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(applyYaml),
+      withLatestFrom(this.store.select(selectContext)),
+      switchMap(([{ yaml }, context]) => {
+        if (!context) {
+          return of(
+            applyYamlFailure({
+              error: 'Missing context',
+            })
+          );
+        }
+
+        return this.resourceService
+          .applyYaml(yaml, context)
+          .pipe(
+            map(() => applyYamlSuccess()),
+            catchError((error) =>
+              of(applyYamlFailure({ error: error.message }))
+            )
+          );
+      })
+    )
+  );
+
 }

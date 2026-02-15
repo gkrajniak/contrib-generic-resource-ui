@@ -6,7 +6,6 @@ import {
   signal,
 } from '@angular/core';
 import { IconComponent } from '@fundamental-ngx/core/icon';
-import { ButtonComponent } from '@fundamental-ngx/core/button';
 import { Resource } from 'models/index';
 import { CopyButtonComponent } from 'components/shared/copy-button/copy-button.component';
 
@@ -28,7 +27,6 @@ interface DataEntry {
   selector: 'app-data-section',
   imports: [
     IconComponent,
-    ButtonComponent,
     CopyButtonComponent,
   ],
   template: `
@@ -43,7 +41,14 @@ interface DataEntry {
         <div class="data-entries">
           @for (entry of dataEntries(); track entry.key) {
             <div class="data-entry" [class.expanded]="expandedKeys().has(entry.key)">
-              <div class="entry-header" (click)="toggleEntry(entry.key)">
+              <div
+                class="entry-header"
+                role="button"
+                tabindex="0"
+                (click)="toggleEntry(entry.key)"
+                (keydown.enter)="toggleEntry(entry.key)"
+                (keydown.space)="toggleEntry(entry.key); $event.preventDefault()"
+              >
                 <fd-icon
                   [glyph]="expandedKeys().has(entry.key) ? 'navigation-down-arrow' : 'navigation-right-arrow'"
                   class="expand-icon"

@@ -5,6 +5,7 @@ import {
   OnInit,
   effect,
   input,
+  output,
   viewChild,
 } from '@angular/core';
 import type * as Monaco from 'monaco-editor';
@@ -29,7 +30,9 @@ import type * as Monaco from 'monaco-editor';
 })
 export class MonacoYamlViewerComponent implements OnInit, OnDestroy {
   readonly content = input<string>('');
+  readonly readOnly = input<boolean>(true);
   readonly editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editorContainer');
+  readonly contentChanged = output<string>();
 
   private editor: Monaco.editor.IStandaloneCodeEditor | null = null;
   private monaco: typeof Monaco | null = null;
@@ -44,6 +47,13 @@ export class MonacoYamlViewerComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    effect(() => {
+      const isReadOnly = this.readOnly();
+      if (this.editor) {
+        this.editor.updateOptions({ readOnly: isReadOnly });
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -54,6 +64,10 @@ export class MonacoYamlViewerComponent implements OnInit, OnDestroy {
     if (this.editor) {
       this.editor.dispose();
     }
+  }
+
+  getValue(): string {
+    return this.editor?.getValue() ?? '';
   }
 
   private loadMonaco(): void {
@@ -88,7 +102,7 @@ export class MonacoYamlViewerComponent implements OnInit, OnDestroy {
       value: this.content(),
       language: 'yaml',
       theme: this.getTheme(),
-      readOnly: true,
+      readOnly: this.readOnly(),
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
       wordWrap: 'on',
@@ -107,14 +121,19 @@ export class MonacoYamlViewerComponent implements OnInit, OnDestroy {
         verticalScrollbarSize: 10,
         horizontalScrollbarSize: 10,
       },
-      renderLineHighlight: 'none',
+      renderLineHighlight: this.readOnly() ? 'none' : 'line',
       overviewRulerLanes: 0,
       hideCursorInOverviewRuler: true,
       overviewRulerBorder: false,
-      contextmenu: false,
+      contextmenu: !this.readOnly(),
     });
 
-    // Listen for theme changes
+    this.editor.onDidChangeModelContent(() => {
+      if (!this.readOnly()) {
+        this.contentChanged.emit(this.editor?.getValue() ?? '');
+      }
+    });
+
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (this.monaco && this.editor) {
         this.monaco.editor.setTheme(this.getTheme());

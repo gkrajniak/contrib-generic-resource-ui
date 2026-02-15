@@ -12,7 +12,7 @@ import {
 } from 'models/index';
 import { gql } from 'apollo-angular';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -212,6 +212,134 @@ export class GenericResourceService {
         }),
         catchError((error) => {
           console.error('Error reading resource', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  watch(
+    resourceName: string,
+    resourceDefinition: ResourceDefinition,
+    fieldAnalysis: FieldAnalysis,
+    context: ResourceNodeContext,
+    readFromParentKcpPath = false
+  ): Observable<Resource> {
+    const fieldsSelection = this.buildDetailFieldsSelection(fieldAnalysis);
+    const group = this.normalizeGroupName(resourceDefinition.group);
+    const version = resourceDefinition.version;
+    const kind = resourceDefinition.kind;
+    const isNamespaced = resourceDefinition.scope === 'Namespaced';
+
+    const variables: Record<string, any> = { name: resourceName };
+    let variablesDef = '($name: String!)';
+    let kindArgs = '(name: $name)';
+
+    if (isNamespaced && context.namespaceId) {
+      variablesDef = '($name: String!, $namespace: String)';
+      kindArgs = '(name: $name, namespace: $namespace)';
+      variables['namespace'] = context.namespaceId;
+    }
+
+    const readQuery = group
+      ? `
+      query GetResource${variablesDef} {
+        ${group} {
+          ${version} {
+            ${kind}${kindArgs} {
+              ${fieldsSelection}
+            }
+          }
+        }
+      }
+    `
+      : `
+      query GetResource${variablesDef} {
+        ${version} {
+          ${kind}${kindArgs} {
+            ${fieldsSelection}
+          }
+        }
+      }
+    `;
+
+    return this.apolloFactory
+      .apollo(context, readFromParentKcpPath)
+      .query({
+        query: gql`${readQuery}`,
+        variables,
+        fetchPolicy: 'no-cache',
+      })
+      .pipe(
+        map((res: any): Resource => {
+          const path = group ? `${group}.${version}.${kind}` : `${version}.${kind}`;
+          return this.getValueByPath(res.data, path);
+        }),
+        switchMap((resource: Resource) => {
+          const resourceVersion = resource.metadata.resourceVersion;
+          const subscriptionOperation = group
+            ? `${group}_${version}_${resourceDefinition.plural}`.toLowerCase()
+            : `${version}_${resourceDefinition.plural}`.toLowerCase();
+
+          let subVariablesDef = '($resourceVersion: String!)';
+          let subArgs = '(resourceVersion: $resourceVersion)';
+          const subVariables: Record<string, any> = { resourceVersion };
+
+          if (isNamespaced && context.namespaceId) {
+            subVariablesDef = '($resourceVersion: String!, $namespace: String)';
+            subArgs = '(resourceVersion: $resourceVersion, namespace: $namespace)';
+            subVariables['namespace'] = context.namespaceId;
+          }
+
+          const subscriptionQuery = `
+            subscription WatchResource${subVariablesDef} {
+              ${subscriptionOperation}${subArgs} {
+                type
+                object {
+                  ${fieldsSelection}
+                }
+              }
+            }
+          `;
+          console.log('[GenericResourceService] Detail subscription query:', subscriptionQuery);
+
+          let currentResource = resource;
+
+          return this.apolloFactory
+            .apollo(context)
+            .subscribe({
+              query: gql`${subscriptionQuery}`,
+              variables: subVariables,
+            })
+            .pipe(
+              map((res: any): Resource | null => {
+                const resourceResult: ResourceSubscriptionResult | undefined =
+                  this.getValueByPath(res.data, subscriptionOperation);
+
+                if (!resourceResult) {
+                  return currentResource;
+                }
+
+                const { type, object } = resourceResult;
+                // Only update if this is the resource we're watching
+                if (object.metadata.name !== resourceName) {
+                  return currentResource;
+                }
+
+                if (type === ResourceOperationTypeMap.MODIFIED) {
+                  currentResource = object;
+                  return currentResource;
+                } else if (type === ResourceOperationTypeMap.DELETED) {
+                  return null;
+                }
+
+                return currentResource;
+              }),
+              filter((resource): resource is Resource => resource !== null),
+              startWith(currentResource)
+            );
+        }),
+        catchError((error) => {
+          console.error('Error watching resource', error);
           return throwError(() => error);
         })
       );
@@ -455,6 +583,34 @@ export class GenericResourceService {
       .pipe(
         catchError((error) => {
           console.error('Error deleting resource', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  applyYaml(
+    yaml: string,
+    context: ResourceNodeContext
+  ): Observable<string> {
+    const applyMutation = `
+      mutation ApplyYaml($yaml: String!) {
+        applyYaml(yaml: $yaml)
+      }
+    `;
+
+    console.log('[GenericResourceService] Apply YAML mutation:', applyMutation);
+
+    return this.apolloFactory
+      .apollo(context)
+      .mutate({
+        mutation: gql`${applyMutation}`,
+        variables: { yaml },
+        fetchPolicy: 'no-cache',
+      })
+      .pipe(
+        map((res: any) => res.data?.applyYaml),
+        catchError((error) => {
+          console.error('Error applying YAML', error);
           return throwError(() => error);
         })
       );

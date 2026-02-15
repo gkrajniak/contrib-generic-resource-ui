@@ -33,6 +33,11 @@ export const loadResourceDetailSuccess = createAction(
   props<{ resource: Resource }>()
 );
 
+export const resourceDetailUpdated = createAction(
+  '[Resources] Detail Updated',
+  props<{ resource: Resource }>()
+);
+
 export const loadResourceDetailFailure = createAction(
   '[Resources] Load Detail Failure',
   props<{ error: string }>()
@@ -87,4 +92,16 @@ export const clearResources = createAction('[Resources] Clear');
 
 export const clearSelectedResource = createAction(
   '[Resources] Clear Selected'
+);
+
+export const applyYaml = createAction(
+  '[Resources] Apply YAML',
+  props<{ yaml: string }>()
+);
+
+export const applyYamlSuccess = createAction('[Resources] Apply YAML Success');
+
+export const applyYamlFailure = createAction(
+  '[Resources] Apply YAML Failure',
+  props<{ error: string }>()
 );
