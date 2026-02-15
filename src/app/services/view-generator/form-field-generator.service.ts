@@ -56,9 +56,12 @@ export class FormFieldGeneratorService {
       ],
     });
 
+    // Only include required fields in the form
     for (const field of allSpecFields) {
       const isRequired = requiredFields.some((rf) => rf.name === field.name);
-      formFields.push(this.convertSchemaFieldToFormField(field, isRequired));
+      if (isRequired) {
+        formFields.push(this.convertSchemaFieldToFormField(field, true));
+      }
     }
 
     return formFields;

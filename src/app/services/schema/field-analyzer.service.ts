@@ -161,7 +161,8 @@ export class FieldAnalyzerService {
     const isList = this.isListType(type);
     const typeName = unwrapped?.name ?? 'Unknown';
     const kind = unwrapped?.kind ?? 'SCALAR';
-    const isScalar = this.isScalarType(unwrapped);
+    // A field is only scalar if it's not a list and its underlying type is scalar
+    const isScalar = !isList && this.isScalarType(unwrapped);
 
     return {
       name,

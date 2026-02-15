@@ -26,6 +26,13 @@ import { formatRelativeTime } from 'utils/humanize';
       @case ('number') {
         <span class="fd-text--numeric">{{ value() }}</span>
       }
+      @case ('status') {
+        @if (isEmpty()) {
+          <span class="fd-text--muted">-</span>
+        } @else {
+          <span [ngClass]="statusColorClass()">{{ displayValue() }}</span>
+        }
+      }
       @case ('object') {
         @if (isComplex()) {
           <span class="fd-text--muted">[Object]</span>
@@ -66,6 +73,15 @@ import { formatRelativeTime } from 'utils/humanize';
       .fd-color--negative {
         color: var(--sapNegativeColor);
       }
+      .fd-color--warning {
+        color: var(--sapWarningColor);
+      }
+      .fd-color--informative {
+        color: var(--sapInformativeColor);
+      }
+      .status-text {
+        font-weight: 500;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,5 +116,31 @@ export class ValueCellComponent {
 
   protected readonly relativeTime = computed(() => {
     return formatRelativeTime(this.value());
+  });
+
+  protected readonly statusColorClass = computed(() => {
+    const val = String(this.value() ?? '').toLowerCase();
+
+    // Positive statuses (green)
+    if (['ready', 'active', 'running', 'succeeded', 'healthy', 'available', 'bound', 'complete', 'completed', 'true'].includes(val)) {
+      return 'fd-color--positive status-text';
+    }
+
+    // Negative statuses (red)
+    if (['failed', 'error', 'terminated', 'unhealthy', 'unavailable', 'false', 'crashloopbackoff', 'imagepullbackoff', 'errimagepull'].includes(val)) {
+      return 'fd-color--negative status-text';
+    }
+
+    // Warning statuses (yellow/orange)
+    if (['pending', 'waiting', 'terminating', 'unknown', 'warning', 'degraded'].includes(val)) {
+      return 'fd-color--warning status-text';
+    }
+
+    // Informative statuses (blue)
+    if (['creating', 'updating', 'provisioning', 'scaling', 'initializing'].includes(val)) {
+      return 'fd-color--informative status-text';
+    }
+
+    return 'status-text';
   });
 }
