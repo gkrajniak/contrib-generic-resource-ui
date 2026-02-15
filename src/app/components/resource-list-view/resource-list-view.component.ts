@@ -153,10 +153,11 @@ export class ResourceListViewComponent implements OnInit {
       ? `Create ${resourceDef.kind}`
       : 'Create Resource';
 
-    // Navigate to the create node using absolute path
+    // Navigate to create using relative path from closest context
     this.luigiClient
       .linkManager()
-      .openAsModal('/create', {
+      .fromClosestContext()
+      .openAsModal('create', {
         title,
         size: 'm',
       })
