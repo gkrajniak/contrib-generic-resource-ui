@@ -237,6 +237,7 @@ import { selectYamlPanelOpen } from 'state/ui/ui.selectors';
 
               <app-data-section
                 [resource]="resource()!"
+                [resourceDefinition]="resourceDefinition()"
               ></app-data-section>
 
               <app-status-section

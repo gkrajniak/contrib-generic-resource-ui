@@ -6,12 +6,13 @@ import {
   signal,
 } from '@angular/core';
 import { IconComponent } from '@fundamental-ngx/core/icon';
-import { Resource } from 'models/index';
+import { Resource, ResourceDefinition } from 'models/index';
 import { CopyButtonComponent } from 'components/shared/copy-button/copy-button.component';
 
 interface DataEntry {
   key: string;
   value: string;
+  rawValue: string; // Original value (base64 for secrets)
   isMultiline: boolean;
   isBinary: boolean;
   language: string;
@@ -58,7 +59,18 @@ interface DataEntry {
                 @if (entry.isBinary) {
                   <span class="binary-badge">binary</span>
                 }
-                <span class="entry-size">{{ formatSize(entry.value.length) }}</span>
+                <span class="entry-size">{{ formatSize(entry.rawValue.length) }}</span>
+                @if (isSecret() && !entry.isBinary) {
+                  <button
+                    type="button"
+                    class="reveal-button"
+                    [attr.aria-label]="revealedKeys().has(entry.key) ? 'Hide value' : 'Show value'"
+                    [title]="revealedKeys().has(entry.key) ? 'Hide value' : 'Show value'"
+                    (click)="toggleReveal(entry.key); $event.stopPropagation()"
+                  >
+                    <fd-icon [glyph]="revealedKeys().has(entry.key) ? 'hide' : 'show'"></fd-icon>
+                  </button>
+                }
                 <app-copy-button [value]="entry.value" [label]="entry.key"></app-copy-button>
               </div>
 
@@ -66,7 +78,12 @@ interface DataEntry {
                 <div class="entry-content">
                   @if (entry.isBinary) {
                     <div class="binary-preview">
-                      <span class="binary-message">Binary data ({{ formatSize(entry.value.length) }})</span>
+                      <span class="binary-message">Binary data ({{ formatSize(entry.rawValue.length) }})</span>
+                    </div>
+                  } @else if (isSecret() && !revealedKeys().has(entry.key)) {
+                    <div class="secret-hidden">
+                      <fd-icon glyph="locked" class="secret-icon"></fd-icon>
+                      <span class="secret-message">Secret value hidden. Click the eye icon to reveal.</span>
                     </div>
                   } @else {
                     <pre class="code-block" [class]="'language-' + entry.language">{{ entry.value }}</pre>
@@ -198,6 +215,42 @@ interface DataEntry {
         color: var(--sapContent_LabelColor);
         font-style: italic;
       }
+      .reveal-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: var(--sapContent_IconColor);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .reveal-button:hover {
+        background: var(--sapButton_Lite_Hover_Background);
+        color: var(--sapButton_Emphasized_TextColor, var(--sapContent_IconColor));
+      }
+      .reveal-button fd-icon {
+        font-size: 0.875rem;
+      }
+      .secret-hidden {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+        background: var(--sapBackgroundColor);
+      }
+      .secret-icon {
+        font-size: 1rem;
+        color: var(--sapContent_NonInteractiveIconColor);
+      }
+      .secret-message {
+        font-size: 0.875rem;
+        color: var(--sapContent_LabelColor);
+        font-style: italic;
+      }
       /* Light theme adjustments */
       @media (prefers-color-scheme: light) {
         .code-block {
@@ -211,8 +264,15 @@ interface DataEntry {
 })
 export class DataSectionComponent {
   readonly resource = input.required<Resource>();
+  readonly resourceDefinition = input<ResourceDefinition | null | undefined>();
 
   protected readonly expandedKeys = signal<Set<string>>(new Set());
+  protected readonly revealedKeys = signal<Set<string>>(new Set());
+
+  protected readonly isSecret = computed(() => {
+    const def = this.resourceDefinition();
+    return def?.kind === 'Secret';
+  });
 
   protected readonly hasData = computed(() => {
     const res = this.resource();
@@ -227,16 +287,20 @@ export class DataSectionComponent {
     const data = (res as any).data ?? {};
     const binaryData = (res as any).binaryData ?? {};
     const entries: DataEntry[] = [];
+    const isSecret = this.isSecret();
 
     // Regular data entries
     for (const [key, value] of Object.entries(data)) {
       if (typeof value === 'string') {
+        // For secrets, data values are base64 encoded - decode them
+        const decodedValue = isSecret ? this.decodeBase64(value) : value;
         entries.push({
           key,
-          value,
-          isMultiline: value.includes('\n'),
+          value: decodedValue,
+          rawValue: value,
+          isMultiline: decodedValue.includes('\n'),
           isBinary: false,
-          language: this.detectLanguage(key, value),
+          language: this.detectLanguage(key, decodedValue),
         });
       }
     }
@@ -247,6 +311,7 @@ export class DataSectionComponent {
         entries.push({
           key,
           value: `[Base64 encoded: ${value.length} characters]`,
+          rawValue: value,
           isMultiline: false,
           isBinary: true,
           language: 'text',
@@ -267,6 +332,26 @@ export class DataSectionComponent {
       updated.add(key);
     }
     this.expandedKeys.set(updated);
+  }
+
+  protected toggleReveal(key: string): void {
+    const current = this.revealedKeys();
+    const updated = new Set(current);
+    if (updated.has(key)) {
+      updated.delete(key);
+    } else {
+      updated.add(key);
+    }
+    this.revealedKeys.set(updated);
+  }
+
+  private decodeBase64(value: string): string {
+    try {
+      return atob(value);
+    } catch {
+      // If decoding fails, return original value
+      return value;
+    }
   }
 
   protected getFileIcon(filename: string): string {

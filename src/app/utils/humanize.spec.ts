@@ -17,8 +17,8 @@ describe('humanize utilities', () => {
     });
 
     it('should handle abbreviations', () => {
-      expect(humanizeFieldName('apiVersion')).toBe('Api Version');
-      expect(humanizeFieldName('uid')).toBe('Uid');
+      expect(humanizeFieldName('apiVersion')).toBe('API Version');
+      expect(humanizeFieldName('uid')).toBe('UID');
     });
   });
 

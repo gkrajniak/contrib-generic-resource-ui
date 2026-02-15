@@ -1,7 +1,7 @@
 export default {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/', '<rootDir>/e2e/'],
   moduleNameMapper: {
     '^models/(.*)$': '<rootDir>/src/app/models/$1',
     '^services/(.*)$': '<rootDir>/src/app/services/$1',
