@@ -423,7 +423,6 @@ export class ResourceDetailViewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('[DetailView] ngOnInit');
     this.contextService.initialize();
 
     // Check for namespace in URL query params and update context
@@ -442,16 +441,7 @@ export class ResourceDetailViewComponent implements OnInit {
       this.store.select(selectResourceId),
     ])
       .pipe(
-        filter(([initialized, fieldAnalysis, resourceDef, routeName, contextResourceId]) => {
-          console.log('[DetailView] combineLatest:', {
-            initialized,
-            hasFieldAnalysis: !!fieldAnalysis,
-            resourceKind: resourceDef?.kind,
-            routeName,
-            contextResourceId,
-          });
-          return initialized && !!fieldAnalysis;
-        }),
+        filter(([initialized, fieldAnalysis]) => initialized && !!fieldAnalysis),
         map(([, , resourceDef, routeName, contextResourceId]) => ({
           // Include resource definition key to detect context/schema changes
           contextKey: resourceDef ? `${resourceDef.group}/${resourceDef.kind}` : '',
@@ -461,7 +451,6 @@ export class ResourceDetailViewComponent implements OnInit {
         distinctUntilChanged((prev, curr) => prev.name === curr.name && prev.contextKey === curr.contextKey)
       )
       .subscribe(({ name }) => {
-        console.log('[DetailView] Dispatching loadResourceDetail for:', name);
         this.store.dispatch(loadResourceDetail({ resourceName: name }));
       });
   }
