@@ -33,7 +33,7 @@ import {
   DynamicPageContentComponent,
 } from '@fundamental-ngx/platform/dynamic-page';
 import { Store } from '@ngrx/store';
-import { combineLatest, filter, map, take } from 'rxjs';
+import { combineLatest, distinctUntilChanged, filter, map, switchMap, take } from 'rxjs';
 import { ContextService } from 'services/context/context.service';
 import { ReadyStatusDetectorService } from 'services/view-generator/ready-status-detector.service';
 import { selectIsContextInitialized, selectResourceDefinition, selectResourceId } from 'state/context/context.selectors';
@@ -423,39 +423,46 @@ export class ResourceDetailViewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('[DetailView] ngOnInit called');
+    console.log('[DetailView] ngOnInit');
     this.contextService.initialize();
 
     // Check for namespace in URL query params and update context
     this.contextService.updateNamespaceFromUrl();
 
-    // Wait for context AND schema to be ready before loading resource detail
+    // React to context/schema readiness AND route changes
+    // This ensures we reload the resource when:
+    // 1. Initial load when context is ready
+    // 2. Route params change
+    // 3. Schema reloads (context switch)
     combineLatest([
       this.store.select(selectIsContextInitialized),
       this.store.select(selectFieldAnalysis),
+      this.store.select(selectResourceDefinition),
+      this.route.paramMap.pipe(map((params) => params.get('name'))),
+      this.store.select(selectResourceId),
     ])
       .pipe(
-        filter(([initialized, fieldAnalysis]) => initialized && !!fieldAnalysis),
-        take(1)
-      )
-      .subscribe(() => {
-        console.log('[DetailView] Context and schema initialized');
-        combineLatest([
-          this.route.paramMap.pipe(map((params) => params.get('name'))),
-          this.store.select(selectResourceId),
-        ])
-          .pipe(
-            map(([routeName, contextResourceId]) => {
-              console.log('[DetailView] routeName:', routeName, 'contextResourceId:', contextResourceId);
-              return routeName || contextResourceId;
-            }),
-            filter((name): name is string => !!name),
-            take(1)
-          )
-          .subscribe((name) => {
-            console.log('[DetailView] Loading resource detail for:', name);
-            this.store.dispatch(loadResourceDetail({ resourceName: name }));
+        filter(([initialized, fieldAnalysis, resourceDef, routeName, contextResourceId]) => {
+          console.log('[DetailView] combineLatest:', {
+            initialized,
+            hasFieldAnalysis: !!fieldAnalysis,
+            resourceKind: resourceDef?.kind,
+            routeName,
+            contextResourceId,
           });
+          return initialized && !!fieldAnalysis;
+        }),
+        map(([, , resourceDef, routeName, contextResourceId]) => ({
+          // Include resource definition key to detect context/schema changes
+          contextKey: resourceDef ? `${resourceDef.group}/${resourceDef.kind}` : '',
+          name: routeName || contextResourceId,
+        })),
+        filter((data): data is { contextKey: string; name: string } => !!data.name),
+        distinctUntilChanged((prev, curr) => prev.name === curr.name && prev.contextKey === curr.contextKey)
+      )
+      .subscribe(({ name }) => {
+        console.log('[DetailView] Dispatching loadResourceDetail for:', name);
+        this.store.dispatch(loadResourceDetail({ resourceName: name }));
       });
   }
 

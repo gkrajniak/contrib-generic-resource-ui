@@ -327,24 +327,19 @@ export class NestedObjectSectionComponent {
 
   protected readonly hasData = computed(() => {
     const d = this.data();
-    const fieldName = this.fieldInfo().field.name;
     const showEmpty = this.showEmptyFields();
 
-    if (!d) {
-      console.log(`[NestedSection ${fieldName}] hasData: no data, showEmpty=${showEmpty}`);
-      return showEmpty; // Show even with no data if showEmptyFields is true
-    }
-
-    const visibleKeys = Object.keys(d).filter((k) => !this.HIDDEN_FIELDS.includes(k));
-
-    // If showEmptyFields is true, show even if effectively empty
+    // If showEmptyFields is true, always show the section
     if (showEmpty) {
-      console.log(`[NestedSection ${fieldName}] hasData: showEmpty=true, returning true`);
       return true;
     }
 
+    if (!d) {
+      return false;
+    }
+
+    const visibleKeys = Object.keys(d).filter((k) => !this.HIDDEN_FIELDS.includes(k));
     if (visibleKeys.length === 0) {
-      console.log(`[NestedSection ${fieldName}] hasData: no visible keys`);
       return false;
     }
 
@@ -352,7 +347,6 @@ export class NestedObjectSectionComponent {
     if (this.isEffectivelyEmpty(d)) return false;
 
     // Also check if we would actually render any content
-    // (either scalar fields or nested entries)
     return this.scalarFieldEntries().length > 0 || this.nestedFieldEntries().length > 0;
   });
 
@@ -473,14 +467,12 @@ export class NestedObjectSectionComponent {
 
     if (info.nestedChildren.length > 0) {
       // Schema-defined nested children path
-      const result = info.nestedChildren
+      return info.nestedChildren
         .filter((nested) => {
           const data = d[nested.field.name];
           if (includeEmpty) {
             // Include all defined fields when showing empty
-            const include = data !== undefined || nested.field.name in d;
-            console.log(`[NestedSection ${info.field.name}] Child ${nested.field.name}: data=${JSON.stringify(data)?.substring(0, 50)}, include=${include}`);
-            return include;
+            return data !== undefined || nested.field.name in d;
           }
           return data && !this.isEffectivelyEmpty(data);
         })
@@ -489,11 +481,6 @@ export class NestedObjectSectionComponent {
           fieldInfo: nested,
           data: d[nested.field.name] ?? {},
         }));
-
-      if (includeEmpty) {
-        console.log(`[NestedSection ${info.field.name}] nestedFieldEntries with includeEmpty: ${result.length} entries`);
-      }
-      return result;
     }
 
     // Fallback: Data-driven nested objects

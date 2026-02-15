@@ -163,5 +163,9 @@ export const resourcesReducer = createReducer(
     selectedResourceName: null,
   })),
   // Clear resources when a new schema is being loaded (context changed)
-  on(loadSchema, (): ResourcesState => initialState)
+  // Keep selectedResourceName so the detail view can reload it after schema loads
+  on(loadSchema, (state): ResourcesState => ({
+    ...initialState,
+    selectedResourceName: state.selectedResourceName,
+  }))
 );

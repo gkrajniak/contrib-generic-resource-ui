@@ -25,10 +25,10 @@ export const initialState: SchemaState = {
 
 export const schemaReducer = createReducer(
   initialState,
-  on(loadSchema, (state): SchemaState => ({
-    ...state,
+  // Clear schema data when loading new schema to prevent stale data being used
+  on(loadSchema, (): SchemaState => ({
+    ...initialState,
     loading: true,
-    error: null,
   })),
   on(
     loadSchemaSuccess,
