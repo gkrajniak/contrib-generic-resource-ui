@@ -22,6 +22,8 @@ export interface FieldAnalysis {
   nestedStatusFields: NestedFieldInfo[];
   // Root-level fields (for ConfigMap, Secret, etc.)
   rootLevelFields: SchemaField[];
+  // Nested root-level fields (for ClusterRoleBinding roleRef/subjects, etc.)
+  nestedRootLevelFields: NestedFieldInfo[];
 }
 
 export interface FieldCategory {

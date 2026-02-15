@@ -530,9 +530,16 @@ export class GenericResourceService {
     let selection = `metadata { ${metadataFields.join(' ')} }`;
 
     // Add root-level fields (for ConfigMap, Secret, etc.)
-    const rootLevelFieldNames = fieldAnalysis.rootLevelFields?.map((f) => f.name) ?? [];
-    if (rootLevelFieldNames.length > 0) {
-      selection += `\n${rootLevelFieldNames.join(' ')}`;
+    const scalarRootLevelFields = fieldAnalysis.rootLevelFields
+      ?.filter((f) => f.isScalar)
+      .map((f) => f.name) ?? [];
+    const nestedRootLevelSelection = this.buildNestedFieldSelection(
+      fieldAnalysis.nestedRootLevelFields ?? [],
+      3
+    );
+    const rootLevelSelections = [...scalarRootLevelFields, nestedRootLevelSelection].filter(Boolean);
+    if (rootLevelSelections.length > 0) {
+      selection += `\n${rootLevelSelections.join(' ')}`;
     }
 
     const specSelections = [

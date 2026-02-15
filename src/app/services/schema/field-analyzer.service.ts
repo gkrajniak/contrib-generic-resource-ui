@@ -38,6 +38,10 @@ export class FieldAnalyzerService {
     // Extract root-level fields (for ConfigMap, Secret, etc.)
     const rootLevelFields = this.extractRootLevelFields(fields);
 
+    // Analyze nested root-level fields (for ClusterRoleBinding roleRef/subjects, etc.)
+    const complexRootLevelFields = rootLevelFields.filter((f) => !f.isScalar);
+    const nestedRootLevelFields = this.analyzeNestedFields(complexRootLevelFields);
+
     return {
       coreFields,
       scalarSpecFields,
@@ -50,6 +54,7 @@ export class FieldAnalyzerService {
       nestedSpecFields,
       nestedStatusFields,
       rootLevelFields,
+      nestedRootLevelFields,
     };
   }
 

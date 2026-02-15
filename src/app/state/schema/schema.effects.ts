@@ -141,23 +141,28 @@ export class SchemaEffects {
   private extractNestedTypeNames(resourceType: IntrospectionType): string[] {
     const typeNames = new Set<string>();
     const fields = resourceType.fields ?? [];
+    const excludedFields = ['apiVersion', 'kind', '__typename'];
 
     for (const field of fields) {
-      if (['metadata', 'spec', 'status'].includes(field.name)) {
-        // Unwrap NON_NULL/LIST wrappers to get the actual type name
-        let type = field.type;
-        while (type.ofType) {
-          type = type.ofType;
-        }
-        if (type.name) {
-          typeNames.add(type.name);
+      if (excludedFields.includes(field.name)) {
+        continue;
+      }
 
-          // Also extract nested type names from the type's fields (if available from introspection)
-          // This handles cases where spec fields have nested objects
-          if (type.fields) {
-            for (const nestedField of type.fields) {
-              this.extractTypeNamesRecursive(nestedField.type, typeNames, 2);
-            }
+      // Unwrap NON_NULL/LIST wrappers to get the actual type name
+      let type = field.type;
+      while (type.ofType) {
+        type = type.ofType;
+      }
+
+      // Only add OBJECT types (not scalars)
+      if (type.kind === 'OBJECT' && type.name && !type.name.startsWith('__')) {
+        typeNames.add(type.name);
+
+        // Also extract nested type names from the type's fields (if available from introspection)
+        // This handles cases where spec/status/root-level fields have nested objects
+        if (type.fields) {
+          for (const nestedField of type.fields) {
+            this.extractTypeNamesRecursive(nestedField.type, typeNames, 2);
           }
         }
       }
@@ -191,26 +196,37 @@ export class SchemaEffects {
     resourceType: IntrospectionType,
     nestedTypes: Record<string, IntrospectionType | null>
   ): IntrospectionType {
-    const fields = resourceType.fields?.map((field) => {
-      if (['metadata', 'spec', 'status'].includes(field.name)) {
-        // Find the unwrapped type name
-        let type = field.type;
-        while (type.ofType) {
-          type = type.ofType;
-        }
-        const typeName = type.name;
-        const nestedType = typeName ? nestedTypes[typeName] : null;
+    const excludedFields = ['apiVersion', 'kind', '__typename'];
 
-        if (nestedType) {
-          // Rebuild the type structure with nested fields included
-          // Also recursively enrich the nested fields within
-          const enrichedNestedType = this.enrichNestedTypeRecursively(nestedType, nestedTypes);
-          return {
-            ...field,
-            type: this.enrichTypeWithFields(field.type, enrichedNestedType),
-          };
-        }
+    const fields = resourceType.fields?.map((field) => {
+      if (excludedFields.includes(field.name)) {
+        return field;
       }
+
+      // Find the unwrapped type name
+      let type = field.type;
+      while (type.ofType) {
+        type = type.ofType;
+      }
+
+      // Only enrich OBJECT types
+      if (type.kind !== 'OBJECT') {
+        return field;
+      }
+
+      const typeName = type.name;
+      const nestedType = typeName ? nestedTypes[typeName] : null;
+
+      if (nestedType) {
+        // Rebuild the type structure with nested fields included
+        // Also recursively enrich the nested fields within
+        const enrichedNestedType = this.enrichNestedTypeRecursively(nestedType, nestedTypes);
+        return {
+          ...field,
+          type: this.enrichTypeWithFields(field.type, enrichedNestedType),
+        };
+      }
+
       return field;
     }) ?? [];
 
