@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   input,
+  signal,
 } from '@angular/core';
 import { IconComponent } from '@fundamental-ngx/core/icon';
 import { DetailFieldType, FieldAnalysis, NestedFieldInfo, Resource } from 'models/index';
@@ -21,7 +22,8 @@ interface ScalarField {
 interface NestedObjectEntry {
   key: string;
   fieldInfo: NestedFieldInfo;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
+  isEmpty?: boolean;
 }
 
 @Component({
@@ -38,6 +40,15 @@ interface NestedObjectEntry {
         <div class="section-header">
           <fd-icon glyph="settings" class="header-icon"></fd-icon>
           <h3 class="section-title">Spec</h3>
+          @if (hiddenEmptyFieldsCount() > 0) {
+            <button
+              type="button"
+              class="show-hidden-link"
+              (click)="toggleShowEmptyFields()"
+            >
+              {{ showEmptyFields() ? 'Hide empty fields' : 'Show ' + hiddenEmptyFieldsCount() + ' hidden empty fields' }}
+            </button>
+          }
         </div>
 
         <!-- Scalar fields in a grid -->
@@ -67,14 +78,15 @@ interface NestedObjectEntry {
         }
 
         <!-- Nested objects as lightweight sections -->
-        @if (nestedObjectFields().length > 0) {
+        @if (visibleNestedObjectFields().length > 0) {
           <div class="nested-sections">
-            @for (nested of nestedObjectFields(); track nested.key) {
+            @for (nested of visibleNestedObjectFields(); track nested.key) {
               <app-nested-object-section
                 [fieldInfo]="nested.fieldInfo"
                 [data]="nested.data"
                 [depth]="0"
                 [maxDepth]="3"
+                [showEmptyFields]="showEmptyFields()"
               ></app-nested-object-section>
             }
           </div>
@@ -107,6 +119,18 @@ interface NestedObjectEntry {
         font-size: 1.125rem;
         font-weight: 600;
         color: var(--sapTextColor);
+        flex: 1;
+      }
+      .show-hidden-link {
+        background: transparent;
+        border: none;
+        color: var(--sapLinkColor);
+        font-size: 0.75rem;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+      }
+      .show-hidden-link:hover {
+        text-decoration: underline;
       }
       .spec-grid {
         display: grid;
@@ -156,6 +180,8 @@ export class SpecSectionComponent {
   readonly resource = input.required<Resource>();
   readonly fieldAnalysis = input<FieldAnalysis | null | undefined>();
 
+  protected readonly showEmptyFields = signal(false);
+
   protected readonly hasSpec = computed(() => {
     const spec = this.resource().spec;
     return spec && Object.keys(spec).length > 0;
@@ -198,15 +224,93 @@ export class SpecSectionComponent {
     }
 
     return analysis.nestedSpecFields
-      .filter((nested) => spec[nested.field.name])
+      .filter((nested) => spec[nested.field.name] !== undefined)
       .map((nested) => ({
         key: nested.field.name,
         fieldInfo: nested,
         data: spec[nested.field.name] ?? {},
+        isEmpty: this.isEmptyObject(spec[nested.field.name]),
       }));
   });
 
-  private isScalarValue(value: any): boolean {
+  protected readonly visibleNestedObjectFields = computed((): NestedObjectEntry[] => {
+    const allFields = this.nestedObjectFields();
+    if (this.showEmptyFields()) {
+      return allFields;
+    }
+    return allFields.filter((entry) => !entry.isEmpty);
+  });
+
+  protected readonly hiddenEmptyFieldsCount = computed(() => {
+    const analysis = this.fieldAnalysis();
+    const spec = this.resource().spec;
+
+    if (!spec || !analysis?.nestedSpecFields) {
+      return 0;
+    }
+
+    // Count empty fields at all levels recursively
+    return this.countEmptyNestedFields(spec, analysis.nestedSpecFields);
+  });
+
+  private countEmptyNestedFields(data: Record<string, unknown>, nestedFields: NestedFieldInfo[]): number {
+    let count = 0;
+
+    for (const nested of nestedFields) {
+      const fieldData = data[nested.field.name];
+
+      if (fieldData === undefined) {
+        continue;
+      }
+
+      if (this.isEmptyObject(fieldData)) {
+        count++;
+      } else if (typeof fieldData === 'object' && fieldData !== null && !Array.isArray(fieldData)) {
+        // Recursively count empty children
+        if (nested.nestedChildren.length > 0) {
+          count += this.countEmptyNestedFields(fieldData as Record<string, unknown>, nested.nestedChildren);
+        }
+      }
+    }
+
+    return count;
+  }
+
+  protected toggleShowEmptyFields(): void {
+    this.showEmptyFields.update((v) => !v);
+  }
+
+  private isEmptyObject(value: unknown): boolean {
+    if (value === null || value === undefined) {
+      return true;
+    }
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      const keys = Object.keys(value as object).filter(
+        (k) => !this.HIDDEN_FIELDS.includes(k)
+      );
+      if (keys.length === 0) {
+        return true;
+      }
+      // Recursively check if all values are null/undefined/empty or nested empty objects
+      return keys.every((key) => {
+        const v = (value as Record<string, unknown>)[key];
+        if (v === null || v === undefined || v === '') {
+          return true;
+        }
+        // Recursively check nested objects
+        if (typeof v === 'object') {
+          return this.isEmptyObject(v);
+        }
+        return false;
+      });
+    }
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+    return value === '';
+  }
+
+  private isScalarValue(value: unknown): boolean {
     return (
       value === null ||
       typeof value === 'string' ||
@@ -215,7 +319,7 @@ export class SpecSectionComponent {
     );
   }
 
-  private getFieldType(value: any): DetailFieldType {
+  private getFieldType(value: unknown): DetailFieldType {
     if (typeof value === 'boolean') {
       return 'boolean';
     }

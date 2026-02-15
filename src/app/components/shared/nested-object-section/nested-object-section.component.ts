@@ -136,6 +136,7 @@ interface NestedFieldEntry {
                     [data]="nested.data"
                     [depth]="depth() + 1"
                     [maxDepth]="maxDepth()"
+                    [showEmptyFields]="showEmptyFields()"
                   ></app-nested-object-section>
                 }
               </div>
@@ -314,6 +315,7 @@ export class NestedObjectSectionComponent {
   readonly data = input.required<Record<string, any>>();
   readonly depth = input(0);
   readonly maxDepth = input(3);
+  readonly showEmptyFields = input(false);
 
   protected readonly expandedUrls = signal<Set<string>>(new Set());
   protected readonly isCollapsed = signal(false);
@@ -325,9 +327,33 @@ export class NestedObjectSectionComponent {
 
   protected readonly hasData = computed(() => {
     const d = this.data();
-    if (!d) return false;
+    const fieldName = this.fieldInfo().field.name;
+    const showEmpty = this.showEmptyFields();
+
+    if (!d) {
+      console.log(`[NestedSection ${fieldName}] hasData: no data, showEmpty=${showEmpty}`);
+      return showEmpty; // Show even with no data if showEmptyFields is true
+    }
+
     const visibleKeys = Object.keys(d).filter((k) => !this.HIDDEN_FIELDS.includes(k));
-    return visibleKeys.length > 0;
+
+    // If showEmptyFields is true, show even if effectively empty
+    if (showEmpty) {
+      console.log(`[NestedSection ${fieldName}] hasData: showEmpty=true, returning true`);
+      return true;
+    }
+
+    if (visibleKeys.length === 0) {
+      console.log(`[NestedSection ${fieldName}] hasData: no visible keys`);
+      return false;
+    }
+
+    // Check if effectively empty
+    if (this.isEffectivelyEmpty(d)) return false;
+
+    // Also check if we would actually render any content
+    // (either scalar fields or nested entries)
+    return this.scalarFieldEntries().length > 0 || this.nestedFieldEntries().length > 0;
   });
 
   protected readonly icon = computed(() => this.fieldInfo().icon);
@@ -375,6 +401,7 @@ export class NestedObjectSectionComponent {
       return Object.entries(childData)
         .filter(([key]) => !this.HIDDEN_FIELDS.includes(key))
         .filter(([, value]) => this.isNestedObject(value))
+        .filter(([, value]) => !this.isEffectivelyEmpty(value))
         .map(([key, value]) => ({
           key,
           fieldInfo: this.createFallbackNestedInfo(key),
@@ -409,9 +436,11 @@ export class NestedObjectSectionComponent {
         .map((f) => this.createFieldEntry(f.name, d[f.name], f.description));
     }
 
+    // Fallback: data-driven scalar fields - also filter out null/undefined/empty values
     return Object.entries(d)
       .filter(([key]) => !this.HIDDEN_FIELDS.includes(key))
       .filter(([, value]) => this.isScalarValue(value))
+      .filter(([, value]) => value !== null && value !== undefined && value !== '')
       .map(([key, value]) => this.createFieldEntry(key, value));
   }
 
@@ -436,24 +465,42 @@ export class NestedObjectSectionComponent {
   protected readonly nestedFieldEntries = computed((): NestedFieldEntry[] => {
     const d = this.data();
     const info = this.fieldInfo();
+    const includeEmpty = this.showEmptyFields();
 
     if (!d) {
       return [];
     }
 
     if (info.nestedChildren.length > 0) {
-      return info.nestedChildren
-        .filter((nested) => d[nested.field.name])
+      // Schema-defined nested children path
+      const result = info.nestedChildren
+        .filter((nested) => {
+          const data = d[nested.field.name];
+          if (includeEmpty) {
+            // Include all defined fields when showing empty
+            const include = data !== undefined || nested.field.name in d;
+            console.log(`[NestedSection ${info.field.name}] Child ${nested.field.name}: data=${JSON.stringify(data)?.substring(0, 50)}, include=${include}`);
+            return include;
+          }
+          return data && !this.isEffectivelyEmpty(data);
+        })
         .map((nested) => ({
           key: nested.field.name,
           fieldInfo: nested,
           data: d[nested.field.name] ?? {},
         }));
+
+      if (includeEmpty) {
+        console.log(`[NestedSection ${info.field.name}] nestedFieldEntries with includeEmpty: ${result.length} entries`);
+      }
+      return result;
     }
 
+    // Fallback: Data-driven nested objects
     return Object.entries(d)
       .filter(([key]) => !this.HIDDEN_FIELDS.includes(key))
       .filter(([, value]) => this.isNestedObject(value))
+      .filter(([, value]) => includeEmpty || !this.isEffectivelyEmpty(value))
       .map(([key, value]) => ({
         key,
         fieldInfo: this.createFallbackNestedInfo(key),
@@ -596,6 +643,36 @@ export class NestedObjectSectionComponent {
       typeof value === 'object' &&
       !Array.isArray(value)
     );
+  }
+
+  private isEffectivelyEmpty(value: unknown): boolean {
+    if (value === null || value === undefined) {
+      return true;
+    }
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      const keys = Object.keys(value as object).filter(
+        (k) => !this.HIDDEN_FIELDS.includes(k)
+      );
+      if (keys.length === 0) {
+        return true;
+      }
+      // Recursively check if all values are null/undefined/empty or nested empty objects
+      return keys.every((key) => {
+        const v = (value as Record<string, unknown>)[key];
+        if (v === null || v === undefined || v === '') {
+          return true;
+        }
+        // Recursively check nested objects
+        if (typeof v === 'object') {
+          return this.isEffectivelyEmpty(v);
+        }
+        return false;
+      });
+    }
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+    return value === '';
   }
 
   private createFallbackNestedInfo(fieldName: string): NestedFieldInfo {
