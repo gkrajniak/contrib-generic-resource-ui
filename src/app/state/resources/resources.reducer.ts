@@ -13,6 +13,7 @@ import {
   loadResources,
   loadResourcesFailure,
   loadResourcesSuccess,
+  resourceDetailUpdated,
   resourcesUpdated,
   selectResource,
   updateResource,
@@ -63,10 +64,23 @@ export const resourcesReducer = createReducer(
     loading: false,
     error,
   })),
-  on(resourcesUpdated, (state, { resources }): ResourcesState => ({
-    ...state,
-    resources,
-  })),
+  on(resourcesUpdated, (state, { resources }): ResourcesState => {
+    // If we have a selected resource, try to find the updated version in the new list
+    let updatedSelectedResource = state.selectedResource;
+    if (state.selectedResource) {
+      const updated = resources.find(
+        (r) => r.metadata.uid === state.selectedResource?.metadata.uid
+      );
+      if (updated) {
+        updatedSelectedResource = updated;
+      }
+    }
+    return {
+      ...state,
+      resources,
+      selectedResource: updatedSelectedResource,
+    };
+  }),
   on(selectResource, (state, { resourceName }): ResourcesState => ({
     ...state,
     selectedResourceName: resourceName,
@@ -81,6 +95,10 @@ export const resourcesReducer = createReducer(
     selectedResource: resource,
     detailLoading: false,
     error: null,
+  })),
+  on(resourceDetailUpdated, (state, { resource }): ResourcesState => ({
+    ...state,
+    selectedResource: resource,
   })),
   on(loadResourceDetailFailure, (state, { error }): ResourcesState => ({
     ...state,
